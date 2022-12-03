@@ -4,7 +4,7 @@ Brian's advent of code solutions in Raku
 
 * [2021](https://git.sr.ht/~bduggan/advent-of-code/tree/master/item/2021)
 
-* [2020](https://git.sr.ht/~bduggan/advent-of-code/tree/master/item/2020)
+* [2017](https://git.sr.ht/~bduggan/advent-of-code/tree/master/item/2017)
 
 * [all](https://git.sr.ht/~bduggan/advent-of-code/tree/master/)
 
