@@ -45,12 +45,12 @@ for $in.lines {
 }
 
 # part 1
-say %totals.values.grep( * <= 100000).sum;
+say %totals.values.grep( * <= 100_000).sum;
 
 # part 2
-my $total-space = 70000000;
+my $total-space = 70_000_000;
 my $unused = $total-space - %totals{ '/' };
-my $need = 30000000;
+my $need = 30_000_000;
 
 my %choices = %totals.grep: { $unused + .value > $need }
 say %choices.values.min;
