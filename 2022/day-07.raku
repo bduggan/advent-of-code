@@ -28,7 +28,7 @@ IN
 
 # $in = 'day-07.input'.IO.slurp;
 
-my @cwd = '';
+my @cwd = '/';
 my %totals;
 
 my regex dir { <[a..z]>+ }
@@ -36,13 +36,11 @@ my regex size { <[0..9]>+ }
 my regex filename { \w+ }
 
 for $in.lines {
-  when /:s '$' cd '/'    / { @cwd = ('')         }
-  when /:s '$' cd <dir>  / { @cwd.push("$<dir>") }
-  when /:s '$' cd '..'   / { @cwd.pop            }
+  when /:s '$' cd '/'    / { @cwd = ('/')          }
+  when /:s '$' cd <dir>  / { @cwd.push("$<dir>/") }
+  when /:s '$' cd '..'   / { @cwd.pop             }
   when /:s <size> <filename>/ {
-    for [\,] @cwd -> $dir {
-      %totals{ $dir.join('/') || '/' } += $<size>
-    }
+    %totals{ [\~] @cwd } »+=» $<size> xx *
   }
 }
 
