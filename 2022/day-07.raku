@@ -36,7 +36,7 @@ my regex size { <[0..9]>+ }
 my regex filename { \w+ }
 
 for $in.lines {
-  when /:s '$' cd '/'    / { @cwd = ('/')          }
+  when /:s '$' cd '/'    / { @cwd = ('/')         }
   when /:s '$' cd <dir>  / { @cwd.push("$<dir>/") }
   when /:s '$' cd '..'   / { @cwd.pop             }
   when /:s <size> <filename>/ {
