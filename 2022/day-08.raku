@@ -23,7 +23,7 @@ sub infix:<🌳>(@trees,\height --> Int:D) is tighter<*> {
 # mark visibility left-right
 for @forest.kv -> \row, @row {
   for @row.kv -> \i, \height {
-    @is-visible[row;i] = @row[^i].all < height || @row[i^..*].all < height;
+    @is-visible[row;i] = [ @row[^i].all, @row[i^..*].all ].any < height;
     @score[row;i] = @row[^i].reverse 🌳 height * @row[i^..*] 🌳 height
   }
 }
@@ -31,7 +31,7 @@ for @forest.kv -> \row, @row {
 # transpose, and check top to bottom
 for ([Z] @forest).kv -> \col, @col {
   for @col.kv -> \i, \height {
-    @is-visible[i;col] ||= @col[^i].all < height || @col[i^..*].all < height;
+    @is-visible[i;col] ||= [ @col[^i].all, @col[i^..*].all ].any < height;
     @score[i;col] *= @col[^i].reverse 🌳 height * @col[i^..*] 🌳 height
   }
 }
