@@ -21,23 +21,22 @@ sub infix:<🌳>(@trees,\height) {
   @trees.elems
 }
 
-for @forest.kv -> \row, @row {
-  for @row.kv -> \i, \height {
+for 0..N X 0..N -> (\row, \col) {
+  my \height = @forest[row;col];
 
-    @is-visible[row;i] = [
-      @row[^i]          .all,
-      @row[i^..N]       .all,
-      @forest[^row;i]   .all,
-      @forest[row^..N;i].all
-    ].any < height;
+  @is-visible[row;col] = [
+    @forest[row;^col   ].all,
+    @forest[row;col^..N].all,
+    @forest[^row;col   ].all,
+    @forest[row^..N;col].all
+  ].any < height;
 
-    @scenic-score[row;i] = [*] [
-      @row[^i].reverse,
-      @row[i^..*],
-      @forest[^row;i].reverse,
-      @forest[row^..N;i]
-    ] X🌳 height
-  }
+  @scenic-score[row;col] = [*] [
+    @forest[row;^col   ].reverse,
+    @forest[row;col^..N],
+    @forest[^row;col   ].reverse,
+    @forest[row^..N;col]
+  ] X🌳 height
 }
 
 # part 1
