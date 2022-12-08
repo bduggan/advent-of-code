@@ -30,8 +30,8 @@ for 0..N X 0..N -> (\row, \col) {
   ].any < height;
 
   $scenic-score max= [*] [
-    @forest[row;^col   ].reverse, @forest[row;col^..N],
-    @forest[^row;col   ].reverse, @forest[row^..N;col]
+    @forest[row;^col].reverse, @forest[row;col^..N],
+    @forest[^row;col].reverse, @forest[row^..N;col]
   ] X🌳 height
 }
 
