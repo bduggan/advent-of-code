@@ -17,9 +17,8 @@ my @forest = $in.lines».comb;
 # count of trees less than or equal to a certain height
 # (tighter precedence than times)
 sub infix:<🌳>(@trees,\height --> Int:D) is tighter<*> {
-  my \count = @trees.first: :k, * >= height;
-  return @trees.elems without count;
-  count + 1;
+  return $_ + 1 with @trees.first: :k, * >= height;
+  +@trees.elems
 }
 
 
