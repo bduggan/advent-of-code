@@ -18,9 +18,9 @@ my @forest = $in.lines».comb;
 # (tighter precedence than times)
 sub infix:<🌳>(@trees,\height --> Int:D) is tighter<*> {
   return 0 unless @trees > 0;
-  my Int $score = @trees.first: :k, * >= height;
-  return @trees.elems without $score;
-  $score + 1;
+  my \count = @trees.first: :k, * >= height;
+  return @trees.elems without count;
+  count + 1;
 }
 
 
