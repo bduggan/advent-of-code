@@ -13,7 +13,8 @@ $in = 'day-08.input'.IO.slurp;
 my @forest = $in.lines».comb;
 my $visible;
 my $scenic-score = -Inf;
-my \N = @forest.elems - 1;
+
+my \N = @forest.elems - 1; # see https://github.com/rakudo/rakudo/issues/5122
 
 # count trees less than or equal to a certain height
 sub infix:<🌳>(@trees,\height) {
