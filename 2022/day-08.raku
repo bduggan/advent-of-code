@@ -16,7 +16,7 @@ my @scenic-score;
 my \N = @forest.elems - 1;
 
 # count trees less than or equal to a certain height
-sub infix:<🌳>(@trees,\height --> Int:D) is tighter<*> {
+sub infix:<🌳>(@trees,\height) {
   return $_ + 1 with @trees.first: :k, * >= height;
   @trees.elems
 }
