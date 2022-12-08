@@ -11,8 +11,8 @@ IN
 $in = 'day-08.input'.IO.slurp;
 
 my @forest = $in.lines».comb;
-my @is-visible;
-my @scenic-score;
+my $visible;
+my $scenic-score = -Inf;
 my \N = @forest.elems - 1;
 
 # count trees less than or equal to a certain height
@@ -24,23 +24,19 @@ sub infix:<🌳>(@trees,\height) {
 for 0..N X 0..N -> (\row, \col) {
   my \height = @forest[row;col];
 
-  @is-visible[row;col] = [
-    @forest[row;^col   ].all,
-    @forest[row;col^..N].all,
-    @forest[^row;col   ].all,
-    @forest[row^..N;col].all
+  $visible++ if [
+    @forest[row;^col].all, @forest[row;col^..N].all,
+    @forest[^row;col].all, @forest[row^..N;col].all
   ].any < height;
 
-  @scenic-score[row;col] = [*] [
-    @forest[row;^col   ].reverse,
-    @forest[row;col^..N],
-    @forest[^row;col   ].reverse,
-    @forest[row^..N;col]
+  $scenic-score max= [*] [
+    @forest[row;^col   ].reverse, @forest[row;col^..N],
+    @forest[^row;col   ].reverse, @forest[row^..N;col]
   ] X🌳 height
 }
 
 # part 1
-say sum @is-visible.map( *.grep(so *).elems );
+say $visible;
 
 # part 2
-say max @scenic-score.map: *.max;
+say $scenic-score
