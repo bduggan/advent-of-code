@@ -18,7 +18,7 @@ my @forest = $in.lines».comb;
 # (tighter precedence than times)
 sub infix:<🌳>(@trees,\height --> Int:D) is tighter<*> {
   return $_ + 1 with @trees.first: :k, * >= height;
-  +@trees.elems
+  @trees.elems
 }
 
 
