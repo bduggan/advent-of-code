@@ -27,16 +27,16 @@ sub infix:<🌳>(@trees,$height --> Int:D) is tighter<*> {
 # mark visibility left-right
 for @forest.kv -> $row, @row {
   for @row.kv -> $index, $height {
-    @is-visible[$row][$index] = so ( (@row[^$index]).all < $height or (@row[$index^..*]).all < $height );
-    @scenic-score[$row][$index] = (@row[^$index]).reverse 🌳 $height * @row[$index^..*] 🌳 $height;
+    @is-visible[$row;$index] = so ( (@row[^$index]).all < $height or (@row[$index^..*]).all < $height );
+    @scenic-score[$row;$index] = (@row[^$index]).reverse 🌳 $height * @row[$index^..*] 🌳 $height;
   }
 }
 
 # transpose, and check top to bottom
 for ([Z] @forest).kv -> $col, @col {
   for @col.kv -> $index, $height {
-    @is-visible[$index][$col] ||= so ( (@col[^$index]).all < $height or (@col[$index^..*]).all < $height );
-    @scenic-score[$index][$col] *= (@col[^$index]).reverse 🌳 $height * @col[$index^..*] 🌳 $height;
+    @is-visible[$index;$col] ||= so ( (@col[^$index]).all < $height or (@col[$index^..*]).all < $height );
+    @scenic-score[$index;$col] *= (@col[^$index]).reverse 🌳 $height * @col[$index^..*] 🌳 $height;
   }
 }
 
