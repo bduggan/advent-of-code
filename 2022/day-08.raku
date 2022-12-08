@@ -25,18 +25,18 @@ sub infix:<🌳>(@trees,$height --> Int:D) is tighter<*> {
 
 
 # mark visibility left-right
-for @forest.kv -> $row, @row {
-  for @row.kv -> $index, $height {
-    @is-visible[$row;$index] = so ( (@row[^$index]).all < $height or (@row[$index^..*]).all < $height );
-    @scenic-score[$row;$index] = (@row[^$index]).reverse 🌳 $height * @row[$index^..*] 🌳 $height;
+for @forest.kv -> \row, @row {
+  for @row.kv -> \i, \height {
+    @is-visible[row;i] = so ( (@row[^i]).all < height or (@row[i^..*]).all < height );
+    @scenic-score[row;i] = [*] (@row[^i].reverse, @row[i^..*]) Z🌳 height xx *;
   }
 }
 
 # transpose, and check top to bottom
-for ([Z] @forest).kv -> $col, @col {
-  for @col.kv -> $index, $height {
-    @is-visible[$index;$col] ||= so ( (@col[^$index]).all < $height or (@col[$index^..*]).all < $height );
-    @scenic-score[$index;$col] *= (@col[^$index]).reverse 🌳 $height * @col[$index^..*] 🌳 $height;
+for ([Z] @forest).kv -> \col, @col {
+  for @col.kv -> \i, \height {
+    @is-visible[i;col] ||= so ( (@col[^i]).all < height or (@col[i^..*]).all < height );
+    @scenic-score[i;col] *= [*] (@col[^i].reverse, @col[i^..*]) Z🌳 height xx *;
   }
 }
 
