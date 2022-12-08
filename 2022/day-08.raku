@@ -10,17 +10,15 @@ IN
 
 $in = 'day-08.input'.IO.slurp;
 
+my @forest = $in.lines».comb;
 my @is-visible;
 my @score;
-my @forest = $in.lines».comb;
 
-# count of trees less than or equal to a certain height
-# (tighter precedence than times)
+# count trees less than or equal to a certain height
 sub infix:<🌳>(@trees,\height --> Int:D) is tighter<*> {
   return $_ + 1 with @trees.first: :k, * >= height;
   @trees.elems
 }
-
 
 # mark visibility left-right
 for @forest.kv -> \row, @row {
