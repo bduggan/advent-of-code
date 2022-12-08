@@ -12,7 +12,8 @@ $in = 'day-08.input'.IO.slurp;
 
 my @forest = $in.lines».comb;
 my @is-visible;
-my @score;
+my @scenic-score;
+my \N = @forest.elems - 1;
 
 # count trees less than or equal to a certain height
 sub infix:<🌳>(@trees,\height --> Int:D) is tighter<*> {
@@ -20,19 +21,22 @@ sub infix:<🌳>(@trees,\height --> Int:D) is tighter<*> {
   @trees.elems
 }
 
-# mark visibility left-right
 for @forest.kv -> \row, @row {
   for @row.kv -> \i, \height {
-    @is-visible[row;i] = [ @row[^i].all, @row[i^..*].all ].any < height;
-    @score[row;i] = [*] [ @row[^i].reverse, @row[i^..*] ] X🌳 height
-  }
-}
 
-# transpose, and check top to bottom
-for ([Z] @forest).kv -> \col, @col {
-  for @col.kv -> \i, \height {
-    @is-visible[i;col] ||= [ @col[^i].all, @col[i^..*].all ].any < height;
-    @score[i;col] *= [*] [ @col[^i].reverse, @col[i^..*] ] X🌳 height
+    @is-visible[row;i] = [
+      @row[^i]          .all,
+      @row[i^..N]       .all,
+      @forest[^row;i]   .all,
+      @forest[row^..N;i].all
+    ].any < height;
+
+    @scenic-score[row;i] = [*] [
+      @row[^i].reverse,
+      @row[i^..*],
+      @forest[^row;i].reverse,
+      @forest[row^..N;i]
+    ] X🌳 height
   }
 }
 
@@ -40,4 +44,4 @@ for ([Z] @forest).kv -> \col, @col {
 say sum @is-visible.map( *.grep(so *).elems );
 
 # part 2
-say max @score.map: *.max;
+say max @scenic-score.map: *.max;
