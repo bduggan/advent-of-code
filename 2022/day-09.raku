@@ -11,15 +11,16 @@ L 5
 R 2
 IN
 
-$in = 'day-09.input'.IO.slurp;
+# $in = 'day-09.input'.IO.slurp;
 
 my @seen;
 
-my %head = :row<100>, :col<100>;
-my %tail = :row<100>, :col<100>;
-@seen[100;100] = 1;
+my $size = 5;
+my @heads = { :row(0), :col(0) } xx 1;
+my %tail = :row(0), :col(0);
+@seen[0;0] = 1;
 
-sub move-head(:$dir) {
+sub move-head(%head, :$dir) {
   # say "moving head $dir";
   # move the head 1 unit in a direction
   given $dir {
@@ -32,34 +33,31 @@ sub move-head(:$dir) {
 }
 
 # make one move to get tail closer to head.
-sub move-tail {
+sub move-tail(%head) {
   if (%head<col> - %tail<col>).abs <= 1 && (%head<row> - %tail<row>).abs <= 1 {
     #say 'touching.';
     return;
   }
   #say "moving tail";
-  my $diff = %head<row col> >>->> %tail<row col>;
-  if %head<row> == %tail<row> and %head<col> == %tail<col> {
-    say "no move: same place";
-  } elsif %head<row> == %tail<row> {
-    %tail<col> += (%tail<col> > %head<col> ?? -1 !! 1)
-  } elsif %head<col> == %tail<col> {
-    %tail<row> += (%tail<row> < %head<row> ?? 1 !! -1)
-  } else {
-    %tail<col> += (%tail<col> > %head<col> ?? -1 !! 1);
-    %tail<row> += (%tail<row> < %head<row> ?? 1 !! -1)
-  }
+  %tail<col> -= (%tail<col> <=> %head<col>).Int;
+  %tail<row> -= (%tail<row> <=> %head<row>).Int;
   @seen[ %tail<row> ; %tail<col> ] = 1;
   #say "tail is now " ~ %tail.raku;
 }
 
-sub draw {
-  return;
-  for 0..10 X 0..10 -> (\x, \col) {
-    my \row = 5 - x;
-    if %head<row> == row && %head<col> == col {
-      print 'H';
-    } elsif %tail<row> == row && %tail<col> == col {
+sub draw($caption = Nil) {
+  say "$caption:" if $caption;
+  for 0..$size X 0..$size -> (\x, \col) {
+    my \row = $size - x;
+		my $printed = False;
+    for @heads.kv -> $i, %head {
+      if %head<row> == row && %head<col> == col {
+        print $i + 1;
+				$printed = True;
+      }
+    }
+    next if $printed;
+    if %tail<row> == row && %tail<col> == col {
       print 'T';
     } elsif @seen[ row; col ] {
       print '#';
@@ -68,16 +66,19 @@ sub draw {
     }
     print "\n" if col==5;
   }
+  prompt '>';
 }
+
+draw('start');
 
 for $in.lines {
   say "line is $_";
   my ($dir,$n) = .split(' ');
   for 0..^$n {
     draw;
-    move-head(:$dir);
+    move-head(@heads[0],:$dir);
     draw;
-    move-tail;
+    move-tail($_) for @heads;
   }
 }
 
