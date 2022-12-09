@@ -1,27 +1,26 @@
 #!/usr/bin/env raku
 
 my $in = q:to/IN/;
-R 4
-U 4
-L 3
-D 1
-R 4
-D 1
-L 5
-R 2
+R 5
+U 8
+L 8
+D 3
+R 17
+D 10
+L 25
+U 20
 IN
 
-# $in = 'day-09.input'.IO.slurp;
+$in = 'day-09.input'.IO.slurp;
 
 my @seen;
 
-my $size = 5;
-my @heads = { :row(0), :col(0) } xx 1;
-my %tail = :row(0), :col(0);
-@seen[0;0] = 1;
+my $size = 200;
+my $start = 100;
+my @knots = { :row($start), :col($start) } xx 10;
+@seen[$start;$start] = 1;
 
 sub move-head(%head, :$dir) {
-  # say "moving head $dir";
   # move the head 1 unit in a direction
   given $dir {
     when 'L'  { %head<col>--; }
@@ -29,56 +28,53 @@ sub move-head(%head, :$dir) {
     when 'U'  { %head<row>++; }
     when 'D'  { %head<row>--; }
   }
-  # say "head is now " ~ %head.raku;
 }
 
 # make one move to get tail closer to head.
-sub move-tail(%head) {
+sub move-tail(%head, %tail, Bool :$mark) {
   if (%head<col> - %tail<col>).abs <= 1 && (%head<row> - %tail<row>).abs <= 1 {
-    #say 'touching.';
     return;
   }
-  #say "moving tail";
   %tail<col> -= (%tail<col> <=> %head<col>).Int;
   %tail<row> -= (%tail<row> <=> %head<row>).Int;
-  @seen[ %tail<row> ; %tail<col> ] = 1;
-  #say "tail is now " ~ %tail.raku;
+  @seen[ %tail<row> ; %tail<col> ] = 1 if $mark;
 }
 
 sub draw($caption = Nil) {
+return;
+  shell "clear";
   say "$caption:" if $caption;
   for 0..$size X 0..$size -> (\x, \col) {
     my \row = $size - x;
 		my $printed = False;
-    for @heads.kv -> $i, %head {
+    for @knots.kv -> $i, %head {
       if %head<row> == row && %head<col> == col {
         print $i + 1;
 				$printed = True;
+        last;
       }
     }
     next if $printed;
-    if %tail<row> == row && %tail<col> == col {
-      print 'T';
-    } elsif @seen[ row; col ] {
+    if @seen[ row; col ] {
       print '#';
     } else {
       print '.';
     }
-    print "\n" if col==5;
+    print "\n" if col==$size;
   }
   prompt '>';
 }
 
 draw('start');
 
-for $in.lines {
-  say "line is $_";
-  my ($dir,$n) = .split(' ');
+for $in.lines -> $line {
+  my ($dir,$n) = $line.split(' ');
   for 0..^$n {
-    draw;
-    move-head(@heads[0],:$dir);
-    draw;
-    move-tail($_) for @heads;
+    draw("== $line ==");
+	  move-head(@knots[0],:$dir);
+    for @knots.rotor(2 => -1).kv -> $i, ($head,$tail) {
+		  move-tail($head,$tail, mark => $i==@knots - 2);
+		}
   }
 }
 
