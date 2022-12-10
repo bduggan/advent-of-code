@@ -14,7 +14,7 @@ my $x = 1;
 my $cpu-running= 0;
 my &queued;
 my $pixel = 0;
-my @crt; # = '_' xx 240;
+my @crt;
 my $strength = 0;
 
 loop {
