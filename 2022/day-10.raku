@@ -13,12 +13,22 @@ my $cycle = 0;
 my $x = 1;
 my $cpu-running= 0;
 my &queued;
+my $pixel = 0;
+my @crt; # = '_' xx 240;
 my $strength = 0;
 
 loop {
   $cycle++;
-  say "during cycle $cycle, x is $x" if ( $cycle + 20 ) %% 40;
   $strength += $cycle * $x if ($cycle + 20) %% 40;
+  # x determines the middle of the sprite position.
+  # check to see if this $pixel being drawn
+  if ( $pixel % 40 == any($x - 1, $x, $x + 1) ) {
+    @crt[ $pixel ] = '#' 
+  } else {
+    @crt[ $pixel ] = '.' 
+  }
+  $pixel = $cycle;
+
   if $cpu-running {
     $cpu-running--;
     queued() if $cpu-running == 0;
@@ -40,5 +50,8 @@ loop {
   }
 }
 
-say $strength
+# part 1
+say $strength;
 
+# part 2
+put .join for @crt.rotor(40);
