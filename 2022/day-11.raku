@@ -64,18 +64,15 @@ class Monkey {
 
   method inspect-and-throw(@other-monkeys) {
 		while @.items.shift -> $item  {
-      # say "monkey $.number is inspecting $item";
-      # my \old = $item;
-		  # my $new-level = (EVAL $.operation) div 3;
 		  my $new-level = $.operator.eval($item);
 			my $next-monkey = $.tester.test($new-level);
-		  @other-monkeys[ $next-monkey ].receive($new-level);
+		  @other-monkeys[ $next-monkey ].thrown($new-level);
       # say "throwing item with level $new-level to $next-monkey";
 		  $!inspected-count++;
     }
   }
 
-	method receive($item) {
+	method thrown($item) {
 		@.items.push: $item;
   }
 }
