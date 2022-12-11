@@ -1,5 +1,7 @@
 #!/usr/bin/env raku
 
+my $*product;
+
 my $in = q:to/IN/;
 Monkey 0:
   Starting items: 79, 98
@@ -56,24 +58,22 @@ class Operator {
 
 class Monkey {
   has Int $.number;
-	has @.items;
+	has UInt @.items;
   has $.operation;
   has Operator $.operator;
   has Tester $.tester;
   has $.inspected-count = 0;
 
   method inspect-and-throw(@other-monkeys) {
-		while @.items.shift -> $item  {
+    # say "monkey number {self.number} has {@!items.elems} items";
+		while @!items.shift -> $item  {
 		  my $new-level = $.operator.eval($item);
 			my $next-monkey = $.tester.test($new-level);
-		  @other-monkeys[ $next-monkey ].thrown($new-level);
+		  @other-monkeys[ $next-monkey ].items.push: $new-level % $*product;
+      die "can't throw to myself" if $next-monkey == $.number;
       # say "throwing item with level $new-level to $next-monkey";
 		  $!inspected-count++;
     }
-  }
-
-	method thrown($item) {
-		@.items.push: $item;
   }
 }
 
@@ -123,17 +123,21 @@ my $actions = Monkey::Actions.new;
 my $match = Monkey::Grammar.parse($in, :$actions);
 my @monkeys = $match.made;
 
+$*product = [*] @monkeys.map: *.tester.divisor;
+
 for 1..10_000 -> $round {
 	for @monkeys -> $monkey {
-		$monkey.inspect-and-throw(@monkeys);
+    $monkey.inspect-and-throw(@monkeys);
 	}
-	next unless $round == 1 || $round == 20 || $round %% 100;
-  say "after round $round";
+	next unless $round == 1 || $round == 20 || $round %% 1000;
+  say "round $round";
 	for @monkeys {
 		# say "monkey {.number} has {.items.join(',')}"
 	  say "monkey {.number} has inspected {.inspected-count} times";
 	}
 }
+
+say "done";
 
 my $score = [*] @monkeys.map({.inspected-count}).sort.tail(2);
 say $score;
