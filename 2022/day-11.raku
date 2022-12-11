@@ -44,8 +44,7 @@ class Monkey {
   }
 }
 
-use Grammar::PrettyErrors;
-grammar Monkey::Grammar does Grammar::PrettyErrors {
+grammar Monkey::Grammar {
   token ws { \h* }
   token number { <[0..9]>+ }
   token op { '+' | '*' }
