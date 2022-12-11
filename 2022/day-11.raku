@@ -30,6 +30,8 @@ Monkey 3:
     If false: throw to monkey 1
 IN
 
+$in = 'day-11.input'.IO.slurp;
+
 class Tester {
 	has Int $.divisor;
   has Int $.true;
@@ -44,16 +46,18 @@ class Monkey {
 	has @.items;
   has $.operation;
   has Tester $.tester;
+  has $.inspected-count = 0;
 
   method inspect-and-throw(@other-monkeys) {
 		while @.items.shift -> $item  {
-			say "monkey $.number is inspecting $item";
+			# say "monkey $.number is inspecting $item";
 			my \old = $item;
 		  use MONKEY-SEE-NO-EVAL;
 		  my $new-level = (EVAL $.operation) div 3;
 			my $next-monkey = $.tester.test($new-level);
 		  @other-monkeys[ $next-monkey ].receive($new-level);
-			say "throwing item with level $new-level to $next-monkey";
+			# say "throwing item with level $new-level to $next-monkey";
+		  $!inspected-count++;
     }
   }
 
@@ -113,3 +117,6 @@ for 1..20 -> $round {
 		say "monkey {.number} has {.items.join(',')}"
 	}
 }
+
+my $score = [*] @monkeys.map({.inspected-count}).sort.tail(2);
+say $score;
