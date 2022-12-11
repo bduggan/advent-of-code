@@ -99,7 +99,7 @@ class Monkey::Actions {
        Monkey.new:
           number => +$<number>,
           items => $<items>.made,
-           operator => $<operation>.made,
+          operator => $<operation>.made,
           tester => $<test>.made;
   }
  method items($/) {
