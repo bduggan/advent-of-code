@@ -1,6 +1,6 @@
 #!/usr/bin/env raku
 
-my $*product;
+my $*modulo;
 
 my $in = 'day-11.input-sample'.IO.slurp;
 
@@ -38,7 +38,7 @@ class Monkey {
     while @!items.shift -> $item  {
       my $new-level = $.operator.eval($item);
       my $next-monkey = $.tester.test($new-level);
-      @other-monkeys[ $next-monkey ].items.push: $new-level % $*product;
+      @other-monkeys[ $next-monkey ].items.push: $new-level % $*modulo;
       $!inspected-count++;
     }
   }
@@ -89,7 +89,7 @@ my $actions = Monkey::Actions.new;
 my $match = Monkey::Grammar.parse($in, :$actions);
 my @monkeys = $match.made;
 
-$*product = [*] @monkeys.map: *.tester.divisor;
+$*modulo = [lcm] @monkeys.map: *.tester.divisor;
 
 for 1..10_000 -> $round {
   for @monkeys -> $monkey {
