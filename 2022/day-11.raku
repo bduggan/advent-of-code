@@ -34,8 +34,7 @@ class Monkey {
   has Tester $.tester;
   has $.inspected-count = 0;
 
-  method inspect-and-throw(@other-monkeys) {
-    while @!items.shift -> $item  {
+  method inspect-and-throw(@other-monkeys) { while @!items.shift -> $item  {
       my $new-level = $.operator.eval($item);
       my $next-monkey = $.tester.test($new-level);
       @other-monkeys[ $next-monkey ].items.push: $new-level % $*modulo;
@@ -53,7 +52,6 @@ grammar Monkey::Grammar {
   rule items { "Starting items: " <number>+ % "," \n }
   rule operation { "Operation: " "new =" <expr> <op> <expr> \n }
   token expr { <number> | "old" }
-
   rule test {
     "Test: divisible by" <divisor=number> \n
         "If true: throw to monkey" <true=number> \n
@@ -63,26 +61,27 @@ grammar Monkey::Grammar {
 
 class Monkey::Actions {
   method TOP($/) { $/.make: $<monkey>.map: *.made  }
-   method monkey($/) {
+  method monkey($/) {
     $/.make:
-       Monkey.new:
-          number => +$<number>,
-          items => $<items>.made,
-          operator => $<operation>.made,
-          tester => $<test>.made;
+      Monkey.new:
+        number => +$<number>,
+        items => $<items>.made,
+        operator => $<operation>.made,
+        tester => $<test>.made;
   }
- method items($/) {
+  method items($/) {
     $/.make: $<number>.map: +*
- }
- method operation($/) {
+  }
+  method operation($/) {
     $/.make: Operator.new:
       arg1 => ~$<expr>[0],
       arg2 => ~$<expr>[1],
       operator => ~$<op>
- }
- method test($/) {
-    $/.make: Tester.new(divisor => +$<divisor>, true => +$<true>, false => +$<false>)
- }
+  }
+  method test($/) {
+    $/.make: Tester.new:
+      divisor => +$<divisor>, true => +$<true>, false => +$<false>
+  }
 }
 
 my $actions = Monkey::Actions.new;
