@@ -52,6 +52,5 @@ set-distances([ ( $end<row>, $end<col> ), ], 0);
 say @distances[ $start<row>; $start<col> ];
 
 # part 2
-say @lowest.raku;
 say min @lowest.map: { @distances[ .<row>; .<col> ] }
 
