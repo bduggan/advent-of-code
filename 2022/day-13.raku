@@ -1,6 +1,6 @@
 #!/usr/bin/env raku
 
-my $in = 'day-13.input.example'.IO.slurp;
+my $in = 'day-13.input'.IO.slurp;
 
 use MONKEY-SEE-NO-EVAL;
 
@@ -27,17 +27,17 @@ multi infix:<pkt>(Int $a, Array $b) {
   [ $a ] pkt $b;
 }
 
-sub str2data($str) {
+sub parse($str) {
  EVAL $str.subst(:g, "]", ",]").subst(:g, "[,]","[]");
 }
 
 # part 1
 my @less = $in.split("\n\n")».lines.grep:
-  :k, { str2data(.[0]) pkt str2data(.[1]) == Less };
+  :k, { parse(.[0]) pkt parse(.[1]) == Less };
 say sum @less >>+>> 1;
 
 # part 2
-my @in = ($in ~ "\n[[2]]\n[[6]]\n").lines.grep(*.chars >  0).map: { str2data($_) };
+my @in = ($in ~ "\n[[2]]\n[[6]]\n").lines.grep(*.chars >  0).map: { parse($_) };
 my @sorted = @in.sort: &infix:<pkt>;
 my $first = 1 + @sorted.first: :k, { .raku eq '$[[2],]' };
 my $second = 1 + @sorted.first: :k, { .raku eq '$[[6],]' };
