@@ -1,7 +1,7 @@
 #!/usr/bin/env raku
 
 my $in = 'day-13.input.example'.IO.slurp;
-$in = 'day-13.input'.IO.slurp;
+# $in = 'day-13.input'.IO.slurp;
 
 use MONKEY-SEE-NO-EVAL;
 
@@ -35,7 +35,7 @@ sub parse($str) {
 # part 1
 my @less = $in.split("\n\n")».lines.grep:
   :k, { parse(.[0]) pkt parse(.[1]) == Less };
-say sum @less >>+>> 1;
+say sum @less »+» 1;
 
 # part 2
 my @in = ($in ~ "\n[[2]]\n[[6]]\n").lines.grep(so *).map: { parse($_) };
