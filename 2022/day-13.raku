@@ -1,9 +1,6 @@
 #!/usr/bin/env raku
 
-my $in = 'day-13.input.example'.IO.slurp;
-$in = 'day-13.input'.IO.slurp;
-
-use MONKEY-SEE-NO-EVAL;
+my $in = 'day-13.input'.IO.slurp;
 
 # ◆: compare packets
 
@@ -26,12 +23,13 @@ multi infix:<◆>(Int $a, @b) {
 }
 
 sub parse($str) {
+ use MONKEY-SEE-NO-EVAL;
  EVAL $str.subst(:g, "]", ",]").subst(:g, "[,]","[]")
 }
 
 # part 1
 my @less = $in.split("\n\n")».lines.grep:
-  :k, -> (\a, \b) { parse(a) ◆ parse(b) == Less };
+  :k, { parse(.[0]) ◆ parse(.[1]) == Less }
 say sum @less »+» 1;
 
 # part 2
