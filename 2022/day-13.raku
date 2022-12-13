@@ -26,7 +26,7 @@ my $in = q:to/IN/;
 [1,[2,[3,[4,[5,6,0]]]],8,9]
 IN
 
-$in = 'day-13.input'.IO.slurp;
+# $in = 'day-13.input'.IO.slurp;
 
 use MONKEY-SEE-NO-EVAL;
 
@@ -59,16 +59,9 @@ sub str2data($str) {
 }
 
 # part 1
-my $sum;
-my $i = 0;
-for $in.split("\n\n")».lines -> $pair {
-  ++$i;
-  my ($m1,$m2) = $pair.map: { str2data($_) }
-  if ($m1 mycmp $m2) == Less {
-    $sum += $i;
-  }
-}
-say $sum;
+my @less = $in.split("\n\n")».lines.grep:
+  :k, { str2data(.[0]) mycmp str2data(.[1]) == Less };
+say sum @less >>+>> 1;
 
 # part 2
 my @in = ($in ~ "\n[[2]]\n[[6]]\n").lines.grep(*.chars >  0).map: { str2data($_) };
