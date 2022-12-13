@@ -34,7 +34,7 @@ sub parse($str) {
 
 # part 1
 my @less = $in.split("\n\n")».lines.grep:
-  :k, { parse(.[0]) pkt parse(.[1]) == Less };
+  :k, -> (\a, \b) { parse(a) pkt parse(b) == Less };
 say sum @less »+» 1;
 
 # part 2
