@@ -1,57 +1,30 @@
 #!/usr/bin/env raku
 
-my $in = q:to/IN/;
-[1,1,3,1,1]
-[1,1,5,1,1]
-
-[[1],[2,3,4]]
-[[1],4]
-
-[9]
-[[8,7,6]]
-
-[[4,4],4,4]
-[[4,4],4,4,4]
-
-[7,7,7,7]
-[7,7,7]
-
-[]
-[3]
-
-[[[]]]
-[[]]
-
-[1,[2,[3,[4,[5,6,7]]]],8,9]
-[1,[2,[3,[4,[5,6,0]]]],8,9]
-IN
-
-# $in = 'day-13.input'.IO.slurp;
+my $in = 'day-13.input.example'.IO.slurp;
 
 use MONKEY-SEE-NO-EVAL;
 
-multi infix:<mycmp>(Int $a,Int $b) {
+# pkt: compare packets
+
+multi infix:<pkt>(Int $a,Int $b) {
   $a <=> $b;
 }
 
-multi infix:<mycmp>(Array $a, Array $b) {
-  for @$a Z, @$b -> $pair {
-    given $pair[0] mycmp $pair[1] {
-      when Less { return Less }
-      when More { return More }
+multi infix:<pkt>(Array $a, Array $b) {
+  for @$a Z, @$b {
+    given .[0] pkt .[1] {
+      .return when Less | More;
     }
   }
-  return Less if $a.elems < $b.elems;
-  return Same if $a.elems == $b.elems;
-  return More;
+  $a.elems <=> $b.elems;
 }
 
-multi infix:<mycmp>(Array $a, Int $b) {
-  return $a mycmp [ $b ];
+multi infix:<pkt>(Array $a, Int $b) {
+  $a pkt [ $b ];
 }
 
-multi infix:<mycmp>(Int $a, Array $b) {
-  return [ $a ] mycmp $b;
+multi infix:<pkt>(Int $a, Array $b) {
+  [ $a ] pkt $b;
 }
 
 sub str2data($str) {
@@ -60,14 +33,13 @@ sub str2data($str) {
 
 # part 1
 my @less = $in.split("\n\n")».lines.grep:
-  :k, { str2data(.[0]) mycmp str2data(.[1]) == Less };
+  :k, { str2data(.[0]) pkt str2data(.[1]) == Less };
 say sum @less >>+>> 1;
 
 # part 2
 my @in = ($in ~ "\n[[2]]\n[[6]]\n").lines.grep(*.chars >  0).map: { str2data($_) };
-my @sorted = @in.sort(&infix:<mycmp>);
+my @sorted = @in.sort: &infix:<pkt>;
 my $first = 1 + @sorted.first: :k, { .raku eq '$[[2],]' };
 my $second = 1 + @sorted.first: :k, { .raku eq '$[[6],]' };
 say $first * $second;
-
 
