@@ -1,4 +1,4 @@
-Brian's advent of code solutions in Raku
+Brian's [advent of code](https://adventofcode.com/) solutions in Raku
 
 * [2022](https://git.sr.ht/~bduggan/advent-of-code/tree/master/item/2022)
 
