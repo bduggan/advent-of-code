@@ -8,24 +8,25 @@ use MONKEY-SEE-NO-EVAL;
 # pkt: compare packets
 
 multi infix:<pkt>(Int $a, Int $b) {
-  $a <=> $b;
+  $a <=> $b
 }
 
 multi infix:<pkt>(@a, @b) {
-  (@a Zpkt @b).first: * == Less | More andthen .return;
-  @a.elems <=> @b.elems;
+  (@a Zpkt @b).first(* != Same)
+    or
+  (@a.elems <=> @b.elems)
 }
 
 multi infix:<pkt>(@a, Int $b) {
-  @a pkt [ $b ];
+  @a pkt [ $b ]
 }
 
 multi infix:<pkt>(Int $a, @b) {
-  [ $a ] pkt @b;
+  [ $a ] pkt @b
 }
 
 sub parse($str) {
- EVAL $str.subst(:g, "]", ",]").subst(:g, "[,]","[]");
+ EVAL $str.subst(:g, "]", ",]").subst(:g, "[,]","[]")
 }
 
 # part 1
