@@ -30,14 +30,10 @@ for $in.lines {
 
 sub add-grain-of-sand($x, $y) {
   return False if $y >= $max-y + 2; # part 2
-  if (!defined( @grid[ $y + 1; $x ])) {
-    return True if add-grain-of-sand( $x, $y + 1); # go down if possible
-  }
-  if (!defined( @grid[ $y + 1; $x - 1] ) ) {
-    return True if add-grain-of-sand( $x - 1, $y + 1); # go diag left if possible
-  }
-  if (!defined( @grid[ $y + 1; $x + 1] ) ) {
-    return True if add-grain-of-sand( $x + 1, $y + 1); # go diag right if possible
+  for 0, -1, +1 -> $d {
+    if (!defined( @grid[ $y + 1; $x + $d ])) {
+      return True if add-grain-of-sand( $x + $d, $y + 1);
+    }
   }
   return False if @grid[ $y; $x ];
   @grid[ $y; $x ] = 'o';
