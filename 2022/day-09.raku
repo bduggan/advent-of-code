@@ -12,11 +12,10 @@ U 20
 IN
 
 # $in = 'day-09.input'.IO.slurp;
-
 my @seen;
-
 my $start = 100;
 my @knots = { :row($start), :col($start) } xx 10;
+my $total = 0;
 
 sub move-head(%head, :dir($_)) {
   %head<col>-- when 'L';
@@ -24,8 +23,6 @@ sub move-head(%head, :dir($_)) {
   %head<row>++ when 'U';
   %head<row>-- when 'D';
 }
-
-my $total = 0;
 
 # make one move to get tail closer to head.
 sub move-tail(%head, %tail, Bool :$mark) {
