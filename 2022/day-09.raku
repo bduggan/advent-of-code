@@ -39,8 +39,7 @@ sub move-tail(%head, %tail, Bool :$mark) {
   }
   %tail<col> -= (%tail<col> <=> %head<col>);
   %tail<row> -= (%tail<row> <=> %head<row>);
-  $total++ if $mark && !@seen[ %tail<row>; %tail<col> ];
-  @seen[ %tail<row> ; %tail<col> ] = 1 if $mark;
+  $total++ if $mark && !@seen[ %tail<row>; %tail<col> ]++;
 }
 
 for $in.lines -> $line {
