@@ -11,13 +11,12 @@ L 25
 U 20
 IN
 
-$in = 'day-09.input'.IO.slurp;
+# $in = 'day-09.input'.IO.slurp;
 
 my @seen;
 
 my $start = 100;
 my @knots = { :row($start), :col($start) } xx 10;
-@seen[$start;$start] = 1;
 
 sub move-head(%head, :dir($_)) {
   %head<col>-- when 'L';
