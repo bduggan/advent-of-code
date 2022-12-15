@@ -11,7 +11,7 @@ L 25
 U 20
 IN
 
-$in = 'day-09.input'.IO.slurp;
+# $in = 'day-09.input'.IO.slurp;
 
 my @seen;
 
@@ -40,45 +40,15 @@ sub move-tail(%head, %tail, Bool :$mark) {
   @seen[ %tail<row> ; %tail<col> ] = 1 if $mark;
 }
 
-sub draw($caption = Nil) {
-return;
-  shell "clear";
-  say "$caption:" if $caption;
-  for 0..$size X 0..$size -> (\x, \col) {
-    my \row = $size - x;
-		my $printed = False;
-    for @knots.kv -> $i, %head {
-      if %head<row> == row && %head<col> == col {
-        print $i + 1;
-				$printed = True;
-        last;
-      }
-    }
-    next if $printed;
-    if @seen[ row; col ] {
-      print '#';
-    } else {
-      print '.';
-    }
-    print "\n" if col==$size;
-  }
-  prompt '>';
-}
-
-draw('start');
-
 for $in.lines -> $line {
   my ($dir,$n) = $line.split(' ');
   for 0..^$n {
-    draw("== $line ==");
 	  move-head(@knots[0],:$dir);
     for @knots.rotor(2 => -1).kv -> $i, ($head,$tail) {
 		  move-tail($head,$tail, mark => $i==@knots - 2);
 		}
   }
 }
-
-draw;
 
 my $total = 0;
 for @seen -> $row {
