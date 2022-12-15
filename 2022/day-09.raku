@@ -37,8 +37,8 @@ sub move-tail(%head, %tail, Bool :$mark) {
   if (%head<col> - %tail<col>).abs <= 1 && (%head<row> - %tail<row>).abs <= 1 {
     return;
   }
-  %tail<col> -= (%tail<col> <=> %head<col>).Int;
-  %tail<row> -= (%tail<row> <=> %head<row>).Int;
+  %tail<col> -= (%tail<col> <=> %head<col>);
+  %tail<row> -= (%tail<row> <=> %head<row>);
   $total++ if $mark && !@seen[ %tail<row>; %tail<col> ];
   @seen[ %tail<row> ; %tail<col> ] = 1 if $mark;
 }
