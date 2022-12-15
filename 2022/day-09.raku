@@ -15,7 +15,6 @@ $in = 'day-09.input'.IO.slurp;
 
 my @seen;
 
-my $size = 200;
 my $start = 100;
 my @knots = { :row($start), :col($start) } xx 10;
 @seen[$start;$start] = 1;
