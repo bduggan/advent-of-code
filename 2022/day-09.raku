@@ -31,9 +31,7 @@ my $total = 0;
 
 # make one move to get tail closer to head.
 sub move-tail(%head, %tail, Bool :$mark) {
-  if (%head<col> - %tail<col>).abs <= 1 && (%head<row> - %tail<row>).abs <= 1 {
-    return;
-  }
+  return if ((%head<col> - %tail<col>) & (%head<row> - %tail<row>)).abs <= 1;
   %tail<col> += (%head<col> <=> %tail<col>);
   %tail<row> += (%head<row> <=> %tail<row>);
   $total++ if $mark && !@seen[ %tail<row>; %tail<col> ]++;
