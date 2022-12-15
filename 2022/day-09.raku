@@ -11,7 +11,7 @@ L 25
 U 20
 IN
 
-# $in = 'day-09.input'.IO.slurp;
+$in = 'day-09.input'.IO.slurp;
 
 my @seen;
 
@@ -30,6 +30,8 @@ sub move-head(%head, :$dir) {
   }
 }
 
+my $total = 0;
+
 # make one move to get tail closer to head.
 sub move-tail(%head, %tail, Bool :$mark) {
   if (%head<col> - %tail<col>).abs <= 1 && (%head<row> - %tail<row>).abs <= 1 {
@@ -37,6 +39,7 @@ sub move-tail(%head, %tail, Bool :$mark) {
   }
   %tail<col> -= (%tail<col> <=> %head<col>).Int;
   %tail<row> -= (%tail<row> <=> %head<row>).Int;
+  $total++ if $mark && !@seen[ %tail<row>; %tail<col> ];
   @seen[ %tail<row> ; %tail<col> ] = 1 if $mark;
 }
 
@@ -45,17 +48,9 @@ for $in.lines -> $line {
   for 0..^$n {
 	  move-head(@knots[0],:$dir);
     for @knots.rotor(2 => -1).kv -> $i, ($head,$tail) {
-		  move-tail($head,$tail, mark => $i==@knots - 2);
+		  move-tail($head, $tail, mark => $i == @knots - 2);
 		}
   }
 }
 
-my $total = 0;
-for @seen -> $row {
-  next unless $row;
-  my @row = @$row;
-  my $these = @row.grep({.defined && $_ == 1}).elems;
-  $total += $these;
-}
-
-say $total;
+say $total + 1;
