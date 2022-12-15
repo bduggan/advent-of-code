@@ -20,14 +20,11 @@ my $start = 100;
 my @knots = { :row($start), :col($start) } xx 10;
 @seen[$start;$start] = 1;
 
-sub move-head(%head, :$dir) {
-  # move the head 1 unit in a direction
-  given $dir {
-    when 'L'  { %head<col>--; }
-    when 'R'  { %head<col>++ }
-    when 'U'  { %head<row>++; }
-    when 'D'  { %head<row>--; }
-  }
+sub move-head(%head, :dir($_)) {
+  %head<col>-- when 'L';
+  %head<col>++ when 'R';
+  %head<row>++ when 'U';
+  %head<row>-- when 'D';
 }
 
 my $total = 0;
