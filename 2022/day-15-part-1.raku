@@ -54,33 +54,33 @@ for $in.lines {
 my $count = $max-x - $min-x;
 my $done = 0;
 {
-	my $covered = 0;
-	for $min-x .. $max-x -> $x {
+  my $covered = 0;
+  for $min-x .. $max-x -> $x {
     $done++;
     if ($done %% 10_000) {
       say "\rdone percent is : " ~ ($done / $count) * 100;
     }
-		if %beacons{ "$x,$y" } {
-			# $covered++;
-			# print 'B';
-			next;
-		}
-		my $sensed;
-		for @sensors -> $sensor {
+    if %beacons{ "$x,$y" } {
+      # $covered++;
+      # print 'B';
+      next;
+    }
+    my $sensed;
+    for @sensors -> $sensor {
       if [ $x, $y ] eqv $sensor.position {
-				# print 'S';
-			  $sensed = True;
-			  $covered++;
-			  last;
-			}
-			if manhattan-distance( [ $x, $y ], $sensor.position ) <= $sensor.range {
-				$covered++;
-				# print '#';
-				$sensed = True;
-				last;
-			}
-		}
-		# print '.' unless $sensed;
-	}
+        # print 'S';
+        $sensed = True;
+        $covered++;
+        last;
+      }
+      if manhattan-distance( [ $x, $y ], $sensor.position ) <= $sensor.range {
+        $covered++;
+        # print '#';
+        $sensed = True;
+        last;
+      }
+    }
+    # print '.' unless $sensed;
+  }
   put "  $y: $covered";
 }
