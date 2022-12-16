@@ -61,14 +61,14 @@ sub found-it($x,$y) {
   my $sensed = False;
   for @sensors -> $sensor {
     if [ $x, $y ] eqv $sensor.position {
-		  $sensed = True;
-		  last;
-		}
-		my $dist = manhattan-distance( [ $x, $y ], $sensor.position );
+      $sensed = True;
+      last;
+    }
+    my $dist = manhattan-distance( [ $x, $y ], $sensor.position );
     if $dist <= $sensor.range  {
-			$sensed = True;
-			last;
-		}
+      $sensed = True;
+      last;
+    }
   }
   return !$sensed;
 }
