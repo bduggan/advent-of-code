@@ -17,7 +17,9 @@ Sensor at x=14, y=3: closest beacon is at x=15, y=3
 Sensor at x=20, y=1: closest beacon is at x=15, y=3
 IN
 
-$in = 'day-15.input'.IO.slurp;
+# $in = 'day-15.input'.IO.slurp;
+# my $y = 2_000_000;
+my $y = 10;
 
 class Sensor {
   has $.range;
@@ -49,7 +51,6 @@ for $in.lines {
   $max-x max= ($position[0] + $range);
   say "added sensor at $position with range $range.  min x is $min-x, max is $max-x";
 }
-my $y = 2_000_000;
 my $count = $max-x - $min-x;
 my $done = 0;
 {
@@ -83,5 +84,3 @@ my $done = 0;
 	}
   put "  $y: $covered";
 }
-
-#say "In row $y there are $covered positions where a beacon cannot be present";
