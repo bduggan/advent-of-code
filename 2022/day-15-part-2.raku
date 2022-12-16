@@ -40,10 +40,9 @@ my %beacons;
 my $min-x = Inf;
 my $max-x = -Inf;
 
-my $max-pos = 4_000_000;
-$in = 'day-15.input'.IO.slurp;
-# my $max-pos = 20;
+# my $max-pos = 4_000_000;
 # $in = 'day-15.input'.IO.slurp;
+my $max-pos = 20;
 
 for $in.lines {
   say "$_";
@@ -99,4 +98,3 @@ for @sensors -> $s {
   await Promise.allof(@running);
 }
 
-#say "In row $y there are $covered positions where a beacon cannot be present";
