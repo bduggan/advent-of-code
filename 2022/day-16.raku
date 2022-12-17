@@ -13,18 +13,20 @@ Valve II has flow rate=0; tunnels lead to valves AA, JJ
 Valve JJ has flow rate=21; tunnel leads to valve II
 in
 
-# $in = 'day-16.input'.IO.slurp;
+$in = 'day-16.input'.IO.slurp;
 
 class Valve {
   has Str $.label;
   has Int $.rate;
   has Str @.tunnels;
   has Bool %!tunnels;
+  has $.distance is rw;
+  has $.score is rw;
   method TWEAK {
     %!tunnels = @.tunnels.map: { $_ => True };
   }
   method gist {
-    "valve $.label ($.rate) -> { @.tunnels.join(',') }"
+    "valve $.label ($.rate) -> { @.tunnels.join(',') } (score: $.score)"
   }
   method Str {
     "valve $.label ($.rate)";
@@ -47,7 +49,7 @@ for $in.lines {
 
 #my $how;
 sub d($msg) {
-  # say $msg;
+  say $msg;
   #$how ~= "$msg\n";
 }
 
@@ -78,14 +80,15 @@ sub total-pressure(Str :$at, :%open is copy, Int :$minute, :@instructions is cop
   my $v = %valves{ $at };
   my @open = %open.keys.sort;
   my $pressure = %valves{ @open }.map(*.rate).sum;
-  d "minute $minute: we are at $at, valves open: { %open.keys.join(',') }, pressure: $pressure";
+  d "minute $minute: we are at $at, valves open: {@open.elems} : { %open.keys.join(',') }, pressure: $pressure";
   return $pressure if $minute == 30 ;
   if @open.elems == %valves.values.grep({.rate > 0}).elems {
     # stay
+    say "staying ($minute)";
     return $pressure + total-pressure(:$at, :%open, :minute($minute + 1));
   }
 	if !@instructions {
-		my $next = best-destination($at,:%open);
+		my $next = best-destination($at,:%open,:$minute);
 		say "new destination is from $at to $next";
     my @route := steps-from(:source($at),:dest($next.label));
 	  my @new-instructions = @route.map: { :move($_) };
@@ -94,6 +97,7 @@ sub total-pressure(Str :$at, :%open is copy, Int :$minute, :@instructions is cop
   }
   my $do-it = @instructions.shift;
   if $do-it.key eq 'open' {
+    say "OPENING $at";
     return $pressure + total-pressure(:$at, open => %open.clone.push($at => True), :minute($minute + 1), :@instructions);
   }
   if $do-it.key ne 'move' {
@@ -114,54 +118,34 @@ sub draw-dot {
 #draw-dot;
 #exit;
 
-sub compare($v, Int $v-dist, $w, Int $w-dist) {
-  #say "comparing $v ($v-dist) to $w ($w-dist)";
-  # say "distances are $w-dist, $v-dist";
-  # say "first is : " ~ ($v.rate * (1 + $w-dist - $v-dist));
-  # say "vs " ~ $w.rate;
-   if ($w-dist > $v-dist) {
-     return ($v.rate * (1 + $w-dist - $v-dist)) <=> $w.rate;
-   }
-   return $v.rate <=> ($w.rate * (1 + $v-dist - $w-dist));
-   #say "result is $result";
-   #return $result;
+sub compare($v, Int $v-dist, $w, Int $w-dist, :$minute) {
+  #  my $eventual-v = (((30 - $minute) - $v-dist) max 0) * $v.rate;
+  #my $eventual-w = (((30 - $minute) - $w-dist) max 0) * $w.rate;
+  #say "comparing $v ($eventual-v) to $w ($eventual-w)";
+  #return $eventual-v <=> $eventual-w;
+  if ($w-dist > $v-dist) {
+    return ($v.rate * (1 + $w-dist - $v-dist)) <=> $w.rate;
+  }
+  return $v.rate <=> ($w.rate * (1 + $v-dist - $w-dist));
 }
 
-sub best-destination($source,:%open --> Valve) {
+sub best-destination($source,:%open,:$minute --> Valve) {
   say "finding best dest from $source";
-	my @candidates = sort %valves.values.grep: { .rate > 0 && .label ne $source && !%open{.label} }
-  say "candidates are : " ~ @candidates.map: *.label;
+	my @candidates = %valves.values.grep: { .rate > 0 && .label ne $source && !%open{.label} }
+  #say "candidates are : " ~ @candidates.map: *.label;
 	die "no candidates!" if @candidates == 0;
-	#my $winner = @candidates.sort( -> $a, $b {
-	# compare(
-  #   $a, steps-from(:$source, :dest($a.label)).elems,
-  #   $b, steps-from(:$source, :dest($b.label)).elems
-  #  )
-	# }).tail;
-  my $winner = @candidates.shift;
-  for @candidates {
-    if compare($_, steps-from(:$source, :dest(.label)).elems,
-      $winner, steps-from(:$source, :dest($winner.label)).elems
-      ) == More {
-      say "$_ is better than $winner";
-      $winner = $_;
-    }
-  }
-  say "winner is $winner";
+  #say "source $source, minute $minute, cands {@candidates.map(*.label).join(',')}";
+	my $winner = @candidates
+  .sort( -> $a, $b {
+    compare(
+     $a, steps-from(:$source, :dest($a.label)).elems,
+     $b, steps-from(:$source, :dest($b.label)).elems,
+	   :$minute
+    )
+	 }).tail;
   $winner;
 }
 
-# from j, compare e to h
-say compare(
-	%valves<JJ>,
-  3,
-	%valves<CC>,
-  1
-);
-
-say "want more^";
-#comparing valve JJ (21) (3) to valve CC (2) (1)
-#result is Less
-
 say total-pressure(:at<AA>, :minute<1>);
-
+# 1439 too low
+# too high 1530
