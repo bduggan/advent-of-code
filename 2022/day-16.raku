@@ -23,18 +23,10 @@ class Valve {
   has Bool %!tunnels;
   has $.distance is rw;
   has $.score is rw;
-  method TWEAK {
-    %!tunnels = @.tunnels.map: { $_ => True };
-  }
-  method gist {
-    "valve $.label ($.rate) -> { @.tunnels.join(',') } (score: $.score)"
-  }
-  method Str {
-    "valve $.label ($.rate)";
-  }
-  method leads-to($dest) {
-    %!tunnels{ $dest } or False
-  }
+  method TWEAK { %!tunnels = @.tunnels.map: { $_ => True }; }
+  method gist { "valve $.label ($.rate) -> { @.tunnels.join(',') } (score: $.score)" }
+  method Str { "valve $.label ($.rate)"; }
+  method leads-to($dest) { %!tunnels{ $dest } or False }
 }
 
 my regex rate { <[0..9]>+ }
@@ -50,19 +42,6 @@ sub init {
     %valves{ ~$<this> } = Valve.new( label => ~$<this>, rate => +$<rate>, tunnels => $<tunnel>.map(*.Str) );
   }
   @nonzeros = %valves.values.grep: { .rate > 0 };
-}
-
-#my $how;
-sub d($msg) {
-  # say $msg;
-  #$how ~= "$msg\n";
-}
-my @path-taken;
-sub save-path($n) {
-  @path-taken.push: $n;
-}
-sub clear-path {
-  @path-taken = ();
 }
 
 my %paths;
@@ -99,7 +78,6 @@ sub total-pressure(Str :$at, :%open is copy, Int :$minute, :@instructions is cop
   # d "minute $minute: we are at $at, valves open: {@open.elems} : { %open.keys.join(',') }, pressure: $pressure";
   return 0 if $minute == 31 ;
   if @open.elems == %valves.values.grep({.rate > 0}).elems {
-    # stay
     return $pressure + total-pressure(:$at, :%open, :minute($minute + 1));
   }
 	if !@instructions {
@@ -109,7 +87,6 @@ sub total-pressure(Str :$at, :%open is copy, Int :$minute, :@instructions is cop
 		my @next = next-destinations($at,:%open,:$minute).List;
     my $max = 0;
     for @next -> $next {
-      # say "trying new destination from $at to $next";
       my @route := steps-from(:source($at),:dest($next.label));
       my @new-instructions = @route.map: { :move($_) };
       @new-instructions.push: (:open($next.label));
@@ -123,25 +100,11 @@ sub total-pressure(Str :$at, :%open is copy, Int :$minute, :@instructions is cop
   my $do-it = @instructions.shift;
   # say "following instruction " ~ $do-it.raku;
   if $do-it.key eq 'open' {
-    d "OPENING $at";
-    save-path($at);
     return $pressure + total-pressure(:$at, open => %open.clone.push($at => True), :minute($minute + 1), :@instructions);
   }
-  die "??" if $do-it.key ne 'move';
   my $next = $do-it.value;
   return $pressure + total-pressure(:at( $next ), :%open, :minute($minute + 1), :@instructions);
 }
-
-sub draw-dot {
-  say 'digraph flow {';
-  for %valves.values -> $v {
-    say "  " ~ $v.label ~ ' -> ' ~ $v.tunnels.join(',');
-    say "  " ~ $v.label ~ qq| [label="{$v.label}\\n{$v.rate}"]|;
-  }
-  say '}';
-}
-#draw-dot;
-#exit;
 
 sub next-destinations($source,:%open,:$minute) {
   @nonzeros.grep: { .label ne $source && !%open{.label} }
@@ -152,33 +115,3 @@ multi MAIN('run', Bool :$real) {
   init;
   say total-pressure(:at<AA>, :minute<1>);
 }
-
-multi MAIN('rand') {
-  my $max = 0;
-    loop {
-    clear-path;
-    my $this = total-pressure(:at<AA>, :minute<1>);
-    if $this > $max {
-      $max max= $this;
-      say "new max is $max";
-      say "path was : " ~ @path-taken.join(',');
-    }
-  }
-}
-
-multi MAIN('guess', $guess) {
-  $*tell-me-when-out = True;
-  my @instructions;
-  for "AA,$guess".split(',').rotor( 2 => -1) -> ($source,$dest) {
-    say "$source to $dest";
-    for steps-from(:$source,:$dest)<> -> $t {
-      @instructions.push: ( :move($t) )
-    }
-    @instructions.push: ( :open($dest) )
-  }
-  #say @instructions.map(*.raku).join("   ");
-  say total-pressure(:at<AA>, :minute<1>, :@instructions);
-}
-
-
-
