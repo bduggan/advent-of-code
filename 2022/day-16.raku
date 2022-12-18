@@ -13,7 +13,6 @@ Valve II has flow rate=0; tunnels lead to valves AA, JJ
 Valve JJ has flow rate=21; tunnel leads to valve II
 in
 
-my $*tell-me-when-out = False;
 my $global-max-pressure = 0;
 
 class Valve {
@@ -81,9 +80,6 @@ sub total-pressure(Str :$at, :%open is copy, Int :$minute, :@instructions is cop
     return $pressure + total-pressure(:$at, :%open, :minute($minute + 1));
   }
 	if !@instructions {
-    if ($*tell-me-when-out) {
-      say "out of instructions";
-    }
 		my @next = next-destinations($at,:%open,:$minute).List;
     my $max = 0;
     for @next -> $next {
