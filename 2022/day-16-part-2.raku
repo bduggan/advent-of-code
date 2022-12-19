@@ -152,8 +152,6 @@ sub next-destinations($source,:%open,:$minute) {
 }
 
 multi MAIN('run', Bool :$real) {
-  # 1964 too low
-  # 1988 wrong
   $*last-minute = 26;
   $in = 'day-16.input'.IO.slurp if $real;
   init;
