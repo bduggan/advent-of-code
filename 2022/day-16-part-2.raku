@@ -77,6 +77,11 @@ sub total-pressure(Str :$at, Str :$elephant, :%open is copy, Int :$minute, :@ins
     $global-max-pressure = $pressure;
   }
   return 0 if $minute == $*last-minute + 1;
+  # prune
+  return 0 if $minute > 10 && $pressure < 50;
+  return 0 if $minute > 15 && $pressure < 90;
+  return 0 if $minute > 20 && $pressure < 110;
+
   if @open.elems == @nonzeros.elems {
     return $pressure + total-pressure(:$at, :%open, :minute($minute + 1));
   }
@@ -85,7 +90,13 @@ sub total-pressure(Str :$at, Str :$elephant, :%open is copy, Int :$minute, :@ins
 		my @next = next-destinations($at,:%open,:$minute).List;
 		my @next-elephant = next-destinations($elephant,:%open,:$minute).List;
     my @pressures;
+    my %done;
     for @next X, @next-elephant -> ($next, $next-elephant) {
+      next if $next eq $next-elephant;
+      next if %done{$next}{$next-elephant} && $at eq $elephant;
+      next if %done{$next-elephant}{$next} && $at eq $elephant;
+      %done{$next-elephant}{$next} = True;
+      %done{$next}{$next-elephant} = True;
       my @instructions = |steps-from(:source($at),:dest($next.label)).map({ :move($_) }), (:open($next.label));
       my @elephant-instructions = |steps-from(:source($elephant),:dest($next-elephant.label)).map({ :move($_) }), (:open($next-elephant.label));
       @pressures.push: total-pressure(:$at, :$elephant, :%open, :$minute, :@instructions, :@elephant-instructions);
@@ -102,6 +113,7 @@ sub total-pressure(Str :$at, Str :$elephant, :%open is copy, Int :$minute, :@ins
 		my @next = next-destinations($at,:%open,:$minute).List;
     my @pressures;
 		for next-destinations($at,:%open,:$minute)<> -> $next {
+      next if @elephant-instructions.grep( { $_ eqv :open($next) } );
       my @instructions = |steps-from(:source($at),:dest($next.label)).map({ :move($_) }), (:open($next.label));
       @pressures.push: total-pressure(:$at, :$elephant, :%open, :$minute, :@instructions, :@elephant-instructions);
     }
@@ -114,6 +126,7 @@ sub total-pressure(Str :$at, Str :$elephant, :%open is copy, Int :$minute, :@ins
 		my @next-elephant = next-destinations($at,:%open,:$minute).List;
     my @pressures;
 		for next-destinations($elephant,:%open,:$minute)<> -> $next-elephant {
+      next if @instructions.first( { $_ eqv :open($next-elephant) } );
       my @elephant-instructions = |steps-from(:source($elephant),:dest($next-elephant.label)).map({ :move($_) }), (:open($next-elephant.label));
       @pressures.push: total-pressure(:$at, :$elephant, :%open, :$minute, :@instructions, :@elephant-instructions);
     }
@@ -139,6 +152,8 @@ sub next-destinations($source,:%open,:$minute) {
 }
 
 multi MAIN('run', Bool :$real) {
+  # 1964 too low
+  # 1988 wrong
   $*last-minute = 26;
   $in = 'day-16.input'.IO.slurp if $real;
   init;
