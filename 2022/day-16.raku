@@ -13,6 +13,7 @@ Valve II has flow rate=0; tunnels lead to valves AA, JJ
 Valve JJ has flow rate=21; tunnel leads to valve II
 in
 
+my $*tell-me-when-out = False;
 my $global-max-pressure = 0;
 
 class Valve {
@@ -66,7 +67,8 @@ sub steps-from(:$source, :$dest, :%seen is copy) {
   return $best-path // 'skip';
 }
 
-sub total-pressure(Str :$at, :%open is copy, Int :$minute, :@instructions is copy) {
+my $*last-minute = 30;
+sub total-pressure(Str :$at, Str :$elephant, :%open is copy, Int :$minute, :@instructions is copy) {
   my $v = %valves{ $at };
   my @open = %open.keys.sort;
   my $pressure = %valves{ @open }.map(*.rate).sum;
@@ -74,25 +76,25 @@ sub total-pressure(Str :$at, :%open is copy, Int :$minute, :@instructions is cop
     say "achieved pressure at $minute : $pressure";
     $global-max-pressure = $pressure;
   }
-  # d "minute $minute: we are at $at, valves open: {@open.elems} : { %open.keys.join(',') }, pressure: $pressure";
-  return 0 if $minute == 31 ;
-  if @open.elems == %valves.values.grep({.rate > 0}).elems {
+  return 0 if $minute == $*last-minute + 1;
+  if @open.elems == @nonzeros.elems {
     return $pressure + total-pressure(:$at, :%open, :minute($minute + 1));
   }
-	if !@instructions {
-		my @next = next-destinations($at,:%open,:$minute).List;
-    my $max = 0;
+
+  if !@instructions {
+    # part 1
+    my @next = next-destinations($at,:%open,:$minute).List;
+    my @pressures = 0;
     for @next -> $next {
-      my @route := steps-from(:source($at),:dest($next.label));
-      my @new-instructions = @route.map: { :move($_) };
-      @new-instructions.push: (:open($next.label));
-      $max max= total-pressure(:$at, :%open, :$minute, :instructions(@new-instructions));
+      my @instructions = |steps-from(:source($at),:dest($next.label)).map({ :move($_) }), (:open($next.label));
+      @pressures.push: total-pressure(:$at, :%open, :$minute, :@instructions);
     }
     unless %open{ $at } {
-      $max max= total-pressure(:$at, open => %open.clone.push($at => True), :minute($minute + 1));
+      @pressures.push: total-pressure(:$at, open => %open.clone.push($at => True), :minute($minute + 1));
     }
-    return $max;
+    return @pressures.max;
   }
+
   my $do-it = @instructions.shift;
   # say "following instruction " ~ $do-it.raku;
   if $do-it.key eq 'open' {
@@ -107,7 +109,8 @@ sub next-destinations($source,:%open,:$minute) {
 }
 
 multi MAIN('run', Bool :$real) {
+  $*last-minute = 30;
   $in = 'day-16.input'.IO.slurp if $real;
   init;
-  say total-pressure(:at<AA>, :minute<1>);
+  say total-pressure(:at<AA>, :elephant<AA>, :minute<1>);
 }

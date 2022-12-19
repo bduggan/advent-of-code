@@ -86,9 +86,9 @@ sub total-pressure(Str :$at, Str :$elephant, :%open is copy, Int :$minute, :@ins
     return $pressure + total-pressure(:$at, :%open, :minute($minute + 1));
   }
 
-	if !@instructions && !@elephant-instructions {
-		my @next = next-destinations($at,:%open,:$minute).List;
-		my @next-elephant = next-destinations($elephant,:%open,:$minute).List;
+  if !@instructions && !@elephant-instructions {
+    my @next = next-destinations($at,:%open,:$minute).List;
+    my @next-elephant = next-destinations($elephant,:%open,:$minute).List;
     my @pressures;
     my %done;
     for @next X, @next-elephant -> ($next, $next-elephant) {
@@ -110,9 +110,9 @@ sub total-pressure(Str :$at, Str :$elephant, :%open is copy, Int :$minute, :@ins
     return @pressures.max;
   }
   if !@instructions && @elephant-instructions {
-		my @next = next-destinations($at,:%open,:$minute).List;
+    my @next = next-destinations($at,:%open,:$minute).List;
     my @pressures;
-		for next-destinations($at,:%open,:$minute)<> -> $next {
+    for next-destinations($at,:%open,:$minute)<> -> $next {
       next if @elephant-instructions.grep( { $_ eqv :open($next) } );
       my @instructions = |steps-from(:source($at),:dest($next.label)).map({ :move($_) }), (:open($next.label));
       @pressures.push: total-pressure(:$at, :$elephant, :%open, :$minute, :@instructions, :@elephant-instructions);
@@ -123,9 +123,9 @@ sub total-pressure(Str :$at, Str :$elephant, :%open is copy, Int :$minute, :@ins
     return @pressures.max;
   }
   if @instructions && !@elephant-instructions {
-		my @next-elephant = next-destinations($at,:%open,:$minute).List;
+    my @next-elephant = next-destinations($at,:%open,:$minute).List;
     my @pressures;
-		for next-destinations($elephant,:%open,:$minute)<> -> $next-elephant {
+    for next-destinations($elephant,:%open,:$minute)<> -> $next-elephant {
       next if @instructions.first( { $_ eqv :open($next-elephant) } );
       my @elephant-instructions = |steps-from(:source($elephant),:dest($next-elephant.label)).map({ :move($_) }), (:open($next-elephant.label));
       @pressures.push: total-pressure(:$at, :$elephant, :%open, :$minute, :@instructions, :@elephant-instructions);
