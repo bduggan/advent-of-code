@@ -13,18 +13,15 @@ Valve II has flow rate=0; tunnels lead to valves AA, JJ
 Valve JJ has flow rate=21; tunnel leads to valve II
 in
 
-my $*tell-me-when-out = False;
-my $global-max-pressure = 0;
+my $global-max-pressure = 0; # just for reporting
 
 class Valve {
   has Str $.label;
   has Int $.rate;
   has Str @.tunnels;
   has Bool %!tunnels;
-  has $.distance is rw;
-  has $.score is rw;
   method TWEAK { %!tunnels = @.tunnels.map: { $_ => True }; }
-  method gist { "valve $.label ($.rate) -> { @.tunnels.join(',') } (score: $.score)" }
+  method gist { "valve $.label ($.rate) -> { @.tunnels.join(',') }" }
   method Str { "valve $.label ($.rate)"; }
   method leads-to($dest) { %!tunnels{ $dest } or False }
 }
