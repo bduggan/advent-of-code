@@ -13,18 +13,16 @@ Valve II has flow rate=0; tunnels lead to valves AA, JJ
 Valve JJ has flow rate=21; tunnel leads to valve II
 in
 
-my $*tell-me-when-out = False;
 my $global-max-pressure = 0;
+my $*prune = False;
 
 class Valve {
   has Str $.label;
   has Int $.rate;
   has Str @.tunnels;
   has Bool %!tunnels;
-  has $.distance is rw;
-  has $.score is rw;
   method TWEAK { %!tunnels = @.tunnels.map: { $_ => True }; }
-  method gist { "valve $.label ($.rate) -> { @.tunnels.join(',') } (score: $.score)" }
+  method gist { "valve $.label ($.rate) -> { @.tunnels.join(',') }" }
   method Str { "valve $.label ($.rate)"; }
   method leads-to($dest) { %!tunnels{ $dest } or False }
 }
@@ -77,10 +75,11 @@ sub total-pressure(Str :$at, Str :$elephant, :%open is copy, Int :$minute, :@ins
     $global-max-pressure = $pressure;
   }
   return 0 if $minute == $*last-minute + 1;
-  # prune
-  return 0 if $minute > 10 && $pressure < 50;
-  return 0 if $minute > 15 && $pressure < 90;
-  return 0 if $minute > 20 && $pressure < 110;
+  if $*prune {
+    return 0 if $minute > 10 && $pressure < 50;
+    return 0 if $minute > 15 && $pressure < 90;
+    return 0 if $minute > 20 && $pressure < 110;
+  }
 
   if @open.elems == @nonzeros.elems {
     return $pressure + total-pressure(:$at, :%open, :minute($minute + 1));
@@ -154,6 +153,7 @@ sub next-destinations($source,:%open,:$minute) {
 multi MAIN('run', Bool :$real) {
   $*last-minute = 26;
   $in = 'day-16.input'.IO.slurp if $real;
+  $*prune = True if $real;
   init;
   say total-pressure(:at<AA>, :elephant<AA>, :minute<1>);
 }
