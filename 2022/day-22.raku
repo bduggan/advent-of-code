@@ -56,11 +56,6 @@ multi next-pos(\p, [0,-1]) { [ p[0], ( ( p[1] - 1 - @row-pad[p[0]] ) % @row-leng
 multi next-pos(\p, [1,0] ) { [ (( p[0] + 1 - @col-pad[p[1]]) % @col-length[p[1]] ) + @col-pad[p[1]], p[1] ] }
 multi next-pos(\p, [-1,0]) { [ (( p[0] - 1 - @col-pad[p[1]]) % @col-length[p[1]] ) + @col-pad[p[1]], p[1] ] }
 
-my %cache;
-multi trait_mod:<is>(Sub $sub, :$memoized) {
-  $sub.wrap: -> |args { %cache{ $sub.WHICH }{ args.raku } //= callsame }
-}
-
 sub g(@pos) {
 	@grid[@pos[0];@pos[1]]
 }
