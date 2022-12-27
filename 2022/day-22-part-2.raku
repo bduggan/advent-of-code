@@ -115,9 +115,10 @@ sub next-pos($t) {
 }
 
 sub try-move($t) {
- my $new-t = next-pos($t);
- next if @grid[$new-t.pos[0]; $new-t.pos[1]] eq '#'; # next move!
- $new-t;
+ with next-pos($t) {
+  next if @grid[.pos[0]; .pos[1]] eq '#'; # next move!
+  $_;
+ }
 }
 
 sub move($n, Turtle $t is rw) {
