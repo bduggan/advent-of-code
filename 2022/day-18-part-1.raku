@@ -24,15 +24,15 @@ my @cubes = $in.lines.map: *.split(',');
 my @taken;
 
 for @cubes {
-	@taken[.[0];.[1];.[2]] = True;
+  @taken[.[0];.[1];.[2]] = True;
 }
 
 my $sides;
 for @cubes -> $cube {
-	for [0,0,1], [0,0,-1], [0,1,0], [0,-1,0], [1,0,0], [-1,0,0] {
-		my $check = $cube >>+>> $_;
-		$sides++ unless @taken[ $check[0]; $check[1]; $check[2] ];
-	}
+  for [0,0,1], [0,0,-1], [0,1,0], [0,-1,0], [1,0,0], [-1,0,0] {
+    my $check = $cube >>+>> $_;
+    $sides++ unless @taken[ $check[0]; $check[1]; $check[2] ];
+  }
 }
 
 say $sides;
