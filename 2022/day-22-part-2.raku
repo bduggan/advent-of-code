@@ -137,7 +137,4 @@ for @moves -> $move {
   }
 }
 
-my %facing-score = <right up left down> Z=> <0 3 2 1>;
-my ($final-row, $final-col) = $t.pos »+» [1,1];
-my $pw = 1000 * $final-row + 4 * $final-col + %facing-score{$t.facing};
-say "password is: 1000 * $final-row + 4 * $final-col + { %facing-score{$t.facing} } == $pw";
+say 1000*($t.pos[0] + 1) + 4*($t.pos[1] + 1) + <0 3 2 1>[$t.facing];
