@@ -31,7 +31,7 @@ class Turtle does Positional {
   }
 }
 
-# turn a hash of positions into a hash whose values also have a direction
+# turn the values of a hash from positions into turtles
 sub infix:<facing>(%h, $facing) {
   %( %h.keys Z=> %h.values.map: { Turtle.new(:pos(@$_), :$facing) } )
 }
