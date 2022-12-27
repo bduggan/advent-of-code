@@ -130,8 +130,8 @@ my $t = Turtle.new: :pos([0, @grid[0].first(:k, * ne ' ')]), :facing(right);
 
 for @moves -> $move {
   given $move {
-    when 'L' { $t = $t.left }
-    when 'R' { $t = $t.right }
+    when 'L' { $t .= left }
+    when 'R' { $t .= right }
     when /<[0..9]>+/ { $t = move($move, $t) }
     default { die "error $move" }
   }
