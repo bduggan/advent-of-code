@@ -1,6 +1,5 @@
 #!/usr/bin/env raku
 
-use lib $*HOME.child('raku-repl-tools/lib');
 use Repl::Tools;
 use Terminal::UI 'ui';
 unit sub MAIN(Bool :$quiet, Int :$stop-at = 2023, Int :$repl-at, Bool :$ui);
