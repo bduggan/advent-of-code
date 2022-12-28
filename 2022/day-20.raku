@@ -29,9 +29,8 @@ my $iterations = $part == 1 ?? 1 !! 10;
 for 1..$iterations {
   say "$_ of $iterations";
   for 0 ..^ @nums.elems -> $i {
-    say "--> $i of " ~ @nums.elems if $i %% 100;
-    my %perm = %( @order Z=> 0 ..^ @nums.elems );
-    my $next = %perm{ $i };
+    say "--> $i of " ~ @nums.elems if $i %% 1000;
+    my $next = @order.first: :k, * == $i;
     mix-once($next,@nums,@order);
   }
 }
