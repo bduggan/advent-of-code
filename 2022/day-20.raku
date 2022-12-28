@@ -6,7 +6,6 @@ $in = 'day-20.input'.IO.slurp if $real;
 my @nums = $in.words.map: +*;
 
 sub mix-once($i, @a, @order) {
-  return if @a[$i] == 0;
   my $new-position = ($i + @a[$i]) % (@a.elems - 1);
   return if $new-position == $i;
   if $new-position == 0  {
