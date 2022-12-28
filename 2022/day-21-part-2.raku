@@ -1,7 +1,5 @@
 #!/usr/bin/env raku
 
-use Repl::Tools;
-
 my $in = q:to/IN/;
 root: pppw + sjmn
 dbpl: 5
@@ -38,7 +36,6 @@ my %op = '+' => &infix:<+>, '-' => &infix:<->, '*' => &infix:<*>, '/' => &infix:
 
 sub has-value($monkey, :%in = %monkeys) {
   return False if %in{$monkey} eq 'UNKNOWN';
-  repl unless defined( %in{ $monkey } );
   %in{ $monkey } ~~ Numeric
     or val( %in{ $monkey } ) ~~ Numeric
 }
@@ -69,23 +66,16 @@ while !has-value(@top.any) {
 }
 
 my $found = @top.grep: { has-value($_) };
-say "found $found which is " ~ %monkeys{ $found };
 my $other = @top.first: * ne $found;
 my %inv = $found => %monkeys{$found}, $other => %monkeys{ $found };
 
 sub inverses($name, $eqn) {
-  # say "inverting $name = $eqn";
   Monkey.parse($eqn);
   my ($one,$two,$op) = ($<one>, $<two>, $<op>).map: ~*;
   my %inv = <+ - * /> Z=> <- + / *>;
   my $inv-op = %inv{ $op };
-  # $name == $one $op $two
-  # for +, *
-  #   $one = $name inv-op $two
-  #   $two = $name inv-op $one
-  # for -, /
-  #    $one = $two inv-op $name
-  #    $two = $one op $name
+  #     +     |     *     |     -      |     /
+  # ----------+-----------+------------+-----------
   # x = y + z | x = y * z | x = y - z  | x = y /z
   # y = z - x | y = z / x | y = z + x  | y = x * z
   # z = y - x | z = y / x | z = y - x  | z = y / x
@@ -105,9 +95,7 @@ for %monkeys.kv -> $name, $value {
     %inv{ $name } = %monkeys{ $name };
     next;
   }
-  # say "$name: $value";
   for inverses($name,$value) {
-    # say "adding new inverted eqn: $_";
     my ($name, $eqn) = .split(': ');
     next if %inv{$name} && has-value($name, in => %inv);
     %inv{ $name } ||= [];
@@ -123,7 +111,7 @@ say "ready to solve inverses!";
 my $filled = 0;
 while !has-value('humn', in => %inv) {
    my $now-filled = (%inv.keys.grep: { has-value($_, in => %inv) }).elems;
-   say "filled $now-filled";
+   say "filled $now-filled" if ++$ %% 10;
    if $filled && $now-filled == $filled {
      say "stopped filling at $filled";
      say "---failed--";
