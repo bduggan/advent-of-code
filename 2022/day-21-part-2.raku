@@ -20,7 +20,7 @@ drzm: hmdt - zczc
 hmdt: 32
 IN
 
-# $in = "day-21.input".IO.slurp;
+$in = "day-21.input".IO.slurp;
 
 my %monkeys;
 for $in.lines {
@@ -43,7 +43,12 @@ sub has-value($monkey, :%in = %monkeys) {
     or val( %in{ $monkey } ) ~~ Numeric
 }
 
-sub try-eval($v, :%in = %monkeys) {
+multi try-eval(@v, :%in = %monkeys) {
+  my @results = @v.map: -> $v { try-eval($v, :%in) }
+  return @results.first: { .defined }
+}
+
+multi try-eval($v, :%in = %monkeys) {
   return Nil if $v eq <CHECK UNKNOWN>.any;
   Monkey.parse($v) or die "bad expression $v";
   return Nil unless has-value([~$<one>, $<two>].all, :%in);
@@ -52,10 +57,9 @@ sub try-eval($v, :%in = %monkeys) {
 }
 
 %monkeys<humn> = 'UNKNOWN';
+my @top = %monkeys<root>.split(' + ');
 %monkeys<root> = 'CHECK';
 
-#root: pppw + sjmn
-my @top = <pppw sjmn>;
 while !has-value(@top.any) {
   for %monkeys.kv -> $name, $value is rw {
     next if $name eq 'humn';
@@ -65,12 +69,12 @@ while !has-value(@top.any) {
 }
 
 my $found = @top.grep: { has-value($_) };
-say "found $found";
+say "found $found which is " ~ %monkeys{ $found };
 my $other = @top.first: * ne $found;
-my %inv = $other => %monkeys{ $found };
+my %inv = $found => %monkeys{$found}, $other => %monkeys{ $found };
 
 sub inverses($name, $eqn) {
-  say "inverting $name = $eqn";
+  # say "inverting $name = $eqn";
   Monkey.parse($eqn);
   my ($one,$two,$op) = ($<one>, $<two>, $<op>).map: ~*;
   my %inv = <+ - * /> Z=> <- + / *>;
@@ -101,13 +105,16 @@ for %monkeys.kv -> $name, $value {
     %inv{ $name } = %monkeys{ $name };
     next;
   }
-  say "$name: $value";
+  # say "$name: $value";
   for inverses($name,$value) {
-    say "adding new inverted eqn: $_";
+    # say "adding new inverted eqn: $_";
     my ($name, $eqn) = .split(': ');
     next if %inv{$name} && has-value($name, in => %inv);
-    die "overlap with { %inv{$name} }" if %inv{ $name };
-    %inv{ $name } = $eqn;
+    %inv{ $name } ||= [];
+    %inv{ $name }.push: $eqn;
+    with %monkeys{ $name } {
+      %inv{ $name }.push: $_
+    }
   }
 }
 
@@ -116,15 +123,13 @@ say "ready to solve inverses!";
 my $filled = 0;
 while !has-value('humn', in => %inv) {
    my $now-filled = (%inv.keys.grep: { has-value($_, in => %inv) }).elems;
+   say "filled $now-filled";
    if $filled && $now-filled == $filled {
      say "stopped filling at $filled";
-     for %inv.kv -> $name, $value { say "$name : $value"; }
      say "---failed--";
-     repl;
      exit;
    }
    $filled = $now-filled;
-   last if ++$ > 10;
    for %inv.kv -> $name, $value is rw {
      next if has-value($name, in => %inv);
      $value = $_ with try-eval($value, in => %inv);
