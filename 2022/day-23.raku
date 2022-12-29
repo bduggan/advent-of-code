@@ -82,9 +82,7 @@ sub draw {
 }
 
 sub compute-score {
-  # 1. find bounding rectangle
   my (\min-r,\max-r,\min-c,\max-c) := min-box;
-  # 2. find holes
   sum @grid[min-r .. max-r;min-c .. max-c].grep({ !.defined }).elems
 }
 
