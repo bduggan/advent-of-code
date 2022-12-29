@@ -1,5 +1,4 @@
 #!/usr/bin/env raku
-use Repl::Tools;
 
 my $in = q:to/IN/;
 ..............
@@ -16,7 +15,7 @@ my $in = q:to/IN/;
 ..............
 IN
 
-$in = slurp 'day-23.input';
+# $in = slurp 'day-23.input';
 
 my @grid;
 my $pad = 200;
