@@ -102,7 +102,8 @@ sub MAIN(Bool :$*quiet, :$real) {
         @next-frontier.push: $t;
       }
     }
-    @frontier = @next-frontier.unique(with => -> $x,$y { $x.pos eqv $y.pos }).sort(*.distance-to-exit).head(40);
+    @frontier = @next-frontier.unique(with => { $^x.pos eqv $^y.pos })
+                              .sort(*.distance-to-exit).head(40);
   }
 }
 
