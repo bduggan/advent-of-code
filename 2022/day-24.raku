@@ -1,8 +1,5 @@
 #!/usr/bin/env raku
 
-use Repl::Tools;
-use Terminal::ANSI::OO 't';
-
 # define "%1" as module arithmetic (like %) but from 1..N instead of 0..N-1
 sub infix:<%1>($x,$m) is looser(&infix:<+>) {
   1 + ($x - 1) % $m
@@ -36,11 +33,9 @@ class Traveler does Positional {
     "[traveler after minute $.minute at {@.pos.join(',')}]"
   }
   method arrived {
-    ([@.pos[0], @.pos[1]] eqv @*final-pos) 
+    @.pos @== @*final-pos
   }
   method moves {
-    # all possible moves from this one.
-    # wait, or move in any direction, checking edges
     my $minute = $!minute + 1;
     my @moves;
     for (0,0), (-1,0), (1,0), (0,-1), (0,1) -> @dir {
@@ -91,31 +86,6 @@ sub valid($t) {
   not @blizzards.first({ $t.pos @== .position-at(:minute($t.minute)) }).defined
 }
 
-sub draw-expedition($t) {
-  return if $*quiet;
-  say "drawing at minute {$t.minute} T:{$t.pos.join(',')}";
-  for @grid.kv -> \r, @row {
-    for @row.kv -> \c, $col {
-      my @snow = @blizzards.grep: { .position-at(:minute($t.minute)) @== [r,c] }
-      if [r,c] @== $t.pos {
-        print t.bold ~ "T" ~ t.text-reset;
-        if @snow > 0 {
-          note "impossible.  caught in blizzard";
-          repl;
-        }
-      } elsif @snow.elems == 1 {
-        print @snow[0].dir;
-      } elsif @snow.elems > 1 {
-        print @snow.elems % 10;
-      } else {
-        print $col eq '#' ?? '#' !! '.';
-      }
-    }
-    print "\n";
-  }
-  print "\n";
-}
-
 sub MAIN(Bool :$*quiet, :$real) {
   setup(:$real);
   my Traveler $t = Traveler.new: pos => [0,1];
@@ -129,14 +99,12 @@ sub MAIN(Bool :$*quiet, :$real) {
   # breadth first search
   my @frontier = ( $t );
 
-  draw-expedition($t);
   loop {
     my @next-frontier;
     say "nodes in frontier: at minute { @frontier[0].minute }: " ~ @frontier.elems;
     for @frontier -> Traveler $f {
       for $f.moves -> $t {
         next unless valid($t);
-        draw-expedition($t);
         if $t.arrived {
           say "arrived at the destination after minutes: " ~ $t.minute + 1;
           exit;
