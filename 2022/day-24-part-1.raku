@@ -93,7 +93,7 @@ sub MAIN(Bool :$*quiet, :$real) {
   my @frontier = ( $t );
   loop {
     my @next-frontier;
-    say "nodes in frontier: at minute { @frontier[0].minute }: " ~ @frontier.elems;
+    say "nodes at minute { @frontier[0].minute }: " ~ @frontier.elems;
     for @frontier -> Traveler $f {
       for $f.moves -> $t {
         next unless valid($t);
