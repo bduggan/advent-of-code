@@ -85,13 +85,10 @@ sub MAIN(Bool :$*quiet, :$real) {
   my Traveler $t = Traveler.new: pos => [0,1];
 
   my ($*min-r, $*min-c) = (1,1);
-  my $*max-r = @grid.elems - 2;
-  my $*max-c = @grid[0].elems - 2;
-  my ($*final-r, $*final-c) = ( @grid.elems - 2, @grid[0].elems - 2 );
-  my @*final-pos = $*final-r, $*final-c;
+  my ($*max-r, $*max-c) = @grid.elems - 2, @grid[0].elems - 2;
+  my @*final-pos = ( $*max-r, $*max-c );
 
   my @frontier = ( $t );
-
   loop {
     my @next-frontier;
     say "nodes in frontier: at minute { @frontier[0].minute }: " ~ @frontier.elems;
