@@ -38,3 +38,20 @@ class BP::Actions {
 my $actions = BP::Actions.new;
 BP.parse($in,:$actions) or die "parse failed";
 my @bps = $/.made;
+
+my $robots = <ore>.BagHash;
+my $inv = BagHash.new;
+
+my $minute = 1;
+loop {
+  say "-- Minute $minute --";
+  for $robots.keys -> $elt {
+    my $qty = $robots{$elt};
+    $inv{ $elt } += $qty;
+    say $qty ~ " {$elt}-collecting robot collects $qty $elt; you now have {$inv{$elt}} $elt.";
+  }
+
+  last if ++$ == 3;
+  NEXT $minute++;
+}
+
