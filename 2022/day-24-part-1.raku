@@ -10,7 +10,6 @@ sub infix:<@==>($x,$y) {
   $x[0] == $y[0] && $x[1] == $y[1]
 }
 
-
 subset Dirs of Str where ('>','<','v','^').any;
 class Blizzard does Positional {
   has Int @.pos[2] handles <AT-POS>;
