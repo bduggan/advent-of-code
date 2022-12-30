@@ -14,7 +14,9 @@ subset Dirs of Str where ('>','<','v','^').any;
 class Blizzard does Positional {
   has Int @.pos[2] handles <AT-POS>;
   has Dirs $.dir;
+  has %!cache;
   method position-at(:$minute) {
+    %!cache{ $minute } //= do
     given $.dir {
       when '>' { (@.pos[0], @.pos[1] + $minute %1 $*max-c) }
       when '<' { (@.pos[0], @.pos[1] - $minute %1 $*max-c) }
@@ -94,8 +96,10 @@ sub MAIN(Bool :$*quiet, :$real, :$until) {
     my @next-frontier;
     last if $until && @frontier[0].minute == $until;
     say "nodes at minute { @frontier[0].minute }: " ~ @frontier.elems;
+    my %seen;
     for @frontier -> Traveler $f {
       for $f.moves -> $t {
+        next if %seen{~$t.pos}++;
         next unless valid($t);
         if $t.arrived {
           say "arrived at the destination after minutes: " ~ $t.minute + 1;
