@@ -40,7 +40,8 @@ class Traveler does Positional {
     my @moves;
     for (0,0), (-1,0), (1,0), (0,-1), (0,1) -> @dir {
       with (@.pos Z+ @dir) -> @pos {
-        next unless self.arrived || ( $*min-r ≤ @pos[0] ≤ $*max-r && $*min-c ≤ @pos[1] ≤ $*max-c );
+        next unless self.arrived ||
+                    ( $*min-r ≤ @pos[0] ≤ $*max-r && $*min-c ≤ @pos[1] ≤ $*max-c );
         @moves.push: Traveler.new: :$minute, :@pos;
       }
     }
