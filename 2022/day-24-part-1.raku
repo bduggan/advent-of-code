@@ -82,7 +82,7 @@ sub valid($t) {
   not @blizzards.first({ $t.pos @== .position-at(:minute($t.minute)) }).defined
 }
 
-sub MAIN(Bool :$*quiet, :$real) {
+sub MAIN(Bool :$*quiet, :$real, :$until) {
   setup(:$real);
   my Traveler $t = Traveler.new: pos => [0,1];
 
@@ -93,6 +93,7 @@ sub MAIN(Bool :$*quiet, :$real) {
   my @frontier = ( $t );
   loop {
     my @next-frontier;
+    last if $until && @frontier[0].minute == $until;
     say "nodes at minute { @frontier[0].minute }: " ~ @frontier.elems;
     for @frontier -> Traveler $f {
       for $f.moves -> $t {
