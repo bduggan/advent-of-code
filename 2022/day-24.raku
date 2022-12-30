@@ -40,7 +40,6 @@ class Traveler does Positional {
     my @moves;
     for (0,0), (-1,0), (1,0), (0,-1), (0,1) -> @dir {
       with (@.pos Z+ @dir) -> @pos {
-        # say "trying {@pos}";
         next unless self.arrived || ( $*min-r ≤ @pos[0] ≤ $*max-r && $*min-c ≤ @pos[1] ≤ $*max-c );
         @moves.push: Traveler.new: :$minute, :@pos;
       }
@@ -66,18 +65,13 @@ sub setup(:$real) {
   #<^v^^>#
   ######.#
   IN
-
-  if $real {
-    $in = slurp 'day-24.input';
-  }
+  $in = slurp 'day-24.input' if $real;
 
   @grid = $in.lines.map: *.comb;
   for @grid.kv -> \r, @row {
     for @row.kv -> \c, $col {
-      if $col ~~ Dirs {
-        my $b = Blizzard.new: pos => [r,c], dir => $col;
-        @blizzards.push: $b;
-      }
+      next unless $col ~~ Dirs;
+      @blizzards.push: Blizzard.new: pos => [r,c], dir => $col;
     }
   }
 }
@@ -96,7 +90,6 @@ sub MAIN(Bool :$*quiet, :$real) {
   my ($*final-r, $*final-c) = ( @grid.elems - 2, @grid[0].elems - 2 );
   my @*final-pos = $*final-r, $*final-c;
 
-  # breadth first search
   my @frontier = ( $t );
 
   loop {
@@ -112,15 +105,7 @@ sub MAIN(Bool :$*quiet, :$real) {
         @next-frontier.push: $t;
       }
     }
-    @frontier = @next-frontier.unique(with => -> $x,$y { $x.pos eqv $y.pos });
-    my $min = (min @frontier.map: *.distance-to-exit);
-    my $max = (max @frontier.map: *.distance-to-exit);
-    if @frontier > 50 {
-      my $cutoff = $min + .5 * ($max - $min);
-      say "pruning to distance < $cutoff";
-      my @pruned = @frontier.grep: { .distance-to-exit < $cutoff }
-      @frontier = @pruned if @pruned > 0;
-    }
+    @frontier = @next-frontier.unique(with => -> $x,$y { $x.pos eqv $y.pos }).sort(*.distance-to-exit).head(40);
   }
 }
 
