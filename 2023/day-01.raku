@@ -7,11 +7,13 @@ a1b2c3d4e5f
 treb7uchet
 DONE
 
-#$in = 'input'.IO.slurp;
+$in = 'input'.IO.slurp;
 
 my $tot;
+
 for $in.lines {
-	my @x = .comb(/<[0..9]>/);
-  $tot += @x[0] ~ @x[*-1]
+  m:g/<[0..9]>/;
+  $tot += $0 ~ $/[*-1]
 }
+
 say $tot
