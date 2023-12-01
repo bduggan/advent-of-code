@@ -1,29 +1,21 @@
 #!/usr/bin/env raku
 
 my $in = q:to/DONE/;
-oneight
+two1nine
+eightwothree
+abcone2threexyz
+xtwone3four
+4nineeightseven2
+zoneight234
+7pqrstsixteen
 DONE
 
 $in = 'input'.IO.slurp;
 
-my @digits = <zero one two three four five six seven eight nine>;
-my %vals = @digits.kv.reverse;
-%vals<zero>:delete;
+my @digits = <one two three four five six seven eight nine>;
+my %vals = @digits Z=> 1..9;
 
-my $tot;
-
-for $in.lines {
-  say $_;
-	my @first = .comb(/<[0..9]> | @digits/);
-  my $r = .flip;
-  my @rdigits = @digits.map: *.flip;
-  my @last = $r.comb(/<[0..9]> | @rdigits/);
-  my $first-digit = (%vals{ @first[0] }) // @first[0];
-  my $last-digit = (%vals{ @last[0].flip }) // @last[0];
-  my $val = $first-digit ~ $last-digit;
-
-  $tot += $val;
+say sum $in.lines.map: {
+  m:ex/<[0..9]> | @digits/;
+  ( $/[0, *-1].map: { %vals{ $_ } // $_ } ).join;
 }
-
-say $tot;
-

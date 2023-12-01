@@ -9,11 +9,8 @@ DONE
 
 $in = 'input'.IO.slurp;
 
-my $tot;
-
-for $in.lines {
+say sum $in.lines.map: {
   m:g/<[0..9]>/;
-  $tot += $0 ~ $/[*-1]
+  $/[0,*-1].join;
 }
 
-say $tot
