@@ -18,12 +18,14 @@ my regex result {:s <cubes>+ % ',' }
 
 my %max = :12red, :13green, :14blue;
 my @valid;
+my $power-sum = 0;
 LINE:
 for $in.lines {
   m/:s Game <id> ':' [ <result>+ % ';' ] $/ or die "bad line $_";
+  my $power = compute-power($/);
+  $power-sum += $power;
   for $<result> -> $r {
     for $r<cubes> -> $c {
-      #say "checking $c<count> and $c<color>";
       if $c<count> > %max{ $c<color> } {
         say "too many $c<color> cubes in game $<id>";
         next LINE;
@@ -33,5 +35,18 @@ for $in.lines {
   @valid.push: +$<id>;
 }
 
+sub compute-power($r) {
+  say "computing power of $r";
+  my %maxes;
+  for $r<result> -> $r {
+    for $r<cubes> -> $c {
+      %maxes{ $c<color> } //= +$c<count>;
+      %maxes{ $c<color> } max= +$c<count>;
+    }
+  }
+  return [*] %maxes.values;
+}
+
 say "valid games: " ~ @valid;
 say "sum: " ~ @valid.sum;
+say "power sum: " ~ $power-sum;
