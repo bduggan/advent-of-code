@@ -14,7 +14,7 @@ my regex id { \d+ }
 my regex count { \d+ }
 my regex color { red | green | blue }
 my regex cubes { :s <count> <color> }
-my regex result {:s <cubes>+ % ',' }
+my regex result { :s <cubes>+ % ',' }
 
 my %max = :12red, :13green, :14blue;
 my @valid;
@@ -36,7 +36,6 @@ for $in.lines {
 }
 
 sub compute-power($r) {
-  say "computing power of $r";
   my %maxes;
   for $r<result> -> $r {
     for $r<cubes> -> $c {
@@ -47,6 +46,8 @@ sub compute-power($r) {
   return [*] %maxes.values;
 }
 
-say "valid games: " ~ @valid;
+# part 1
 say "sum: " ~ @valid.sum;
+
+# part 2
 say "power sum: " ~ $power-sum;
