@@ -22,8 +22,7 @@ my $power-sum = 0;
 LINE:
 for $in.lines {
   m/:s Game <id> ':' [ <result>+ % ';' ] $/ or die "bad line $_";
-  my $power = compute-power($/);
-  $power-sum += $power;
+  $power-sum += compute-power($/);
   for $<result> -> $r {
     for $r<cubes> -> $c {
       if $c<count> > %max{ $c<color> } {
