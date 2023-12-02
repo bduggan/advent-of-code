@@ -38,7 +38,6 @@ sub compute-power($r) {
   my %maxes;
   for $r<result> -> $r {
     for $r<cubes> -> $c {
-      %maxes{ $c<color> } //= +$c<count>;
       %maxes{ $c<color> } max= +$c<count>;
     }
   }
