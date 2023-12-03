@@ -2,46 +2,28 @@
 
 my $in = 'input'.IO.slurp;
 
-my regex part { \d+ }
-
 my @found;
+my %gears;
 
 for $in.lines.kv -> $row,$line {
-  for $line.match( /<part>/, :g)».<part> -> $num {
-    my @gears := nearby-gears($row,$num.from,$num.to);
-    next unless @gears > 0;
-    @found.push: %( num => +$num, gears => @gears.map(*.join(',')) );
+  for $line.match( /\d+/, :g)  {
+    my @gears := nearby-gears($row, .from, .to);
+    @found.push: %( num => +$_, gears => @gears.map(*.raku) );
   }
 }
 
-my %gears;
-for @found -> $f {
-  for $f<gears> -> $g {
-    %gears{ $g }.push: $f<num>;
-  }
-}
+%gears{ .<gears> }.push: .<num> for @found;
 
-my $total;
-for %gears {
-  my @parts := .value;
-  next unless @parts.elems == 2;
-  $total += [*] @parts;
-}
-
-say "total $total";
+say sum %gears.grep({.value.elems == 2}).map: { [*] .value.List }
 
 sub has-gear($row,$col) {
-  return False if $row < 0 || $row ≥ $in.lines;
-  return False if $col < 0 || $col ≥ $in.lines[0].chars;
-  my $c = $in.lines[$row].substr($col,1);
-  return False if $c eq any( '.', |(0..9));
-  return $c eq '*';
+  0 < $row < $in.lines
+    and 0 < $col < $in.lines[0].chars
+    and $in.lines[$row].comb[$col] eq '*';
 }
 
 sub nearby-gears($row,$from,$to) {
-  my @gears =
-    ( |( ($row - 1, $row, $row + 1) X, ( $from - 1, $to ) ),
-      |( ($row - 1, $row + 1) X, ($from .. $to - 1) )
-    ).grep: -> ($row,$col) { has-gear($row, $col) }
-  return @gears;
+  @ = ( |( ($row - 1, $row, $row + 1) X, ( $from - 1, $to ) ),
+        |( ($row - 1, $row + 1) X, ($from .. $to - 1) )
+  ).grep: -> ($row,$col) { has-gear($row, $col) }
 }
