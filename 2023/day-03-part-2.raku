@@ -1,20 +1,6 @@
 #!/usr/bin/env raku
 
-my $in = q:to/IN/;
-467..114..
-...*......
-..35..633.
-......#...
-617*......
-.....+.58.
-..592.....
-......755.
-...$.*....
-.664.598..
-IN
-
-say $in;
-# $in = 'input'.IO.slurp;
+my $in = 'input'.IO.slurp;
 
 my regex part { \d+ }
 

@@ -1,19 +1,6 @@
 #!/usr/bin/env raku
 
-my $in = q:to/IN/;
-467..114..
-...*......
-..35..633.
-......#...
-617*......
-.....+.58.
-..592.....
-......755.
-...$.*....
-.664.598..
-IN
-
-say $in;
+my $in = 'input'.IO.slurp;
 
 my regex part { \d+ }
 
@@ -26,7 +13,6 @@ for $in.lines.kv -> $row,$line {
   }
 }
 
-say "parts: " ~ @found.join(',');
 say "sum : " ~ @found.sum;
 
 sub has-symbol($row,$col) {
