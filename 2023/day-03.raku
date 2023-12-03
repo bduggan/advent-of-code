@@ -5,8 +5,8 @@ my $in = 'input'.IO.slurp;
 my regex part { \d+ }
 
 say sum $in.lines.kv.map: -> $row,$line {
-  |$line.match( /<part>/, :g)».<part>.grep: -> $num {
-    is-part($row,$num.from,$num.to);
+  |$line.match( /<part>/, :g)».<part>.grep: {
+    is-part($row, .from, .to);
   }
 }
 
