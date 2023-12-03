@@ -13,21 +13,17 @@ my $in = q:to/IN/;
 .664.598..
 IN
 
-# say $in;
-$in = 'input'.IO.slurp;
+say $in;
+# $in = 'input'.IO.slurp;
 
 my regex part { \d+ }
 
 my @found;
 
 for $in.lines.kv -> $row,$line {
-  say "row $row";
   for $line.match( /<part>/, :g)».<part> -> $num {
-    # next unless $num eq '617';
-    # say "checking $num";
     my @gears := nearby-gears($row,$num.from,$num.to);
     next unless @gears > 0;
-    # say "$num is next to gears: { @gears.raku }";
     @found.push: %( num => +$num, gears => @gears.map(*.join(',')) );
   }
 }
@@ -43,9 +39,9 @@ my $total;
 for %gears {
   my @parts := .value;
   next unless @parts.elems == 2;
-  # say "nearby parts: " ~ @parts;
   $total += [*] @parts;
 }
+
 say "total $total";
 
 sub has-gear($row,$col) {
