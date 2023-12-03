@@ -2,10 +2,8 @@
 
 my $in = 'input'.IO.slurp;
 
-my regex part { \d+ }
-
 say sum $in.lines.kv.map: -> $row,$line {
-  |$line.match( /<part>/, :g)».<part>.grep: {
+  sum $line.match( /\d+/, :g).grep: {
     is-part($row, .from, .to);
   }
 }
@@ -13,7 +11,7 @@ say sum $in.lines.kv.map: -> $row,$line {
 sub has-symbol($row,$col) {
   0 < $row < $in.lines
     and 0 < $col < $in.lines[0].chars
-    and $in.lines[$row].comb[$col] ne any( '.', |(0..9));
+    and $in.lines[$row].comb[$col] ne any('.', |(0..9));
 }
 
 sub is-part($row,$from,$to) {
