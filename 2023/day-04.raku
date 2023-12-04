@@ -1,8 +1,13 @@
-say sum
- lines.map: {
-   m/:s Card \d+ ':' (.*) '|' (.*) $$/;
-   my $cnt = (bag $0.words) ∩ bag $1.words;
-   (2 ** ($cnt.values - 1)).Int
+#!/usr/bin/env raku
+
+my ($sum, @copies);
+
+for lines() {
+   my ($card) = m/:s Card (\d+) ':' (.*) '|' (.*) $$/.Array;
+   my $matches = +( (bag $1.words) ∩ bag $2.words );
+   $sum += (2 ** ( $matches - 1 )).Int;
+   @copies[ $card ^.. ($card + $matches) ]>>++ for 1..++@copies[$card];
 }
 
-  
+# part 1, 2
+say $sum, ',', @copies.sum;

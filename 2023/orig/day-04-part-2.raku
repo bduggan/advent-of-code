@@ -12,4 +12,3 @@ for lines() {
 }
 
 say @copies.sum;
-  
