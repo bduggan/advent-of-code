@@ -4,7 +4,7 @@ class Interval {
   has $.min is rw;
   has $.max is rw;
   method Str { "[$.min, $.max)" }
-  method apply-map(Interval $map) {
+  method apply-map($map) {
     Interval.new: min => $.min + $map.offset, max => $.max + $map.offset;
   }
 }
@@ -14,28 +14,28 @@ class Mapping is Interval {
   method Str { "[$.min, $.max) -> ($.offset)" }
 }
 
-sub transform-interval($state, $interval is copy, @mappings) {
+sub transform-interval($state, Interval $i, @mappings) {
   my @out;
-  for @mappings.sort(+*.min) -> $map {
-    next if $interval.max < $map.min or $interval.min > $map.max;
-    when $interval.min <= $map.min < $map.max <= $interval.max {
-      $interval.max = $map.min;
-      @out.push: $interval.apply-map($map);
+  for @mappings.sort(+*.min) -> $m {
+    next if $i.max < $m.min or $i.min > $m.max;
+    when $i.min <= $m.min < $m.max <= $i.max {
+      $i.max = $m.min;
+      @out.push: $i.apply-map($m);
     }
-    when $interval.min <= $map.min < $interval.max <= $map.max {
-      $interval.max = $map.max;
-      @out.push: $interval.apply-map($map);
-      @out.push: $interval unless $interval.min == $map.min;
+    when $i.min <= $m.min < $i.max <= $m.max {
+      $i.max = $m.max;
+      @out.push: $i.apply-map($m);
+      @out.push: $i unless $i.min == $m.min;
     }
-    when $map.min < $interval.min < $interval.max <= $map.max {
-      @out.push: $interval.apply-map($map);
+    when $m.min < $i.min < $i.max <= $m.max {
+      @out.push: $i.apply-map($m);
     }
-    when $map.min < $interval.min < $map.max <= $interval.max {
-      @out.push: Interval.new( min => $interval.min, max => $map.max).apply-map($map);
-      $interval.min = $map.max;
+    when $m.min < $i.min < $m.max <= $i.max {
+      @out.push: $i.new( min => $i.min, max => $m.max).apply-map($m);
+      $i.min = $m.max;
     }
   }
-  @out = ( $interval ) unless @out.elems;
+  @out = ( $i ) unless @out.elems;
   @out;
 }
 
