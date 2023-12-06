@@ -8,8 +8,7 @@ sub wins($time,$distance) {
 }
 
 my @lines = lines().map: *.split(':')[1];
-my @times = @lines[0].words;
-my @distances = @lines[1].words;
+my (@times,@distances) := @lines».words;
 
 # part 1
 say [*] (@times Z=> @distances).map: { wins(.key,.value) }
