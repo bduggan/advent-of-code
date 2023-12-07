@@ -32,13 +32,12 @@ sub jtype($hand) {
 my @vals = <2 3 4 5 6 7 8 9 T J Q K A>;
 my %val = @vals.kv.reverse;
 
-my @hands = 'input'.IO.lines.words.map: -> $hand, $bid { %( :$hand, :$bid ) };
+my @hands = lines().words.map: -> $hand, $bid { %( :$hand, :$bid ) };
 
 my @sorted = @hands.sort:
    { (type($^a<hand>) <=> type($^b<hand>)) ||
-            $^a<hand>.comb.map({%val{$_}}).join
-        <=> $^b<hand>.comb.map({%val{$_}}).join
-   }
+            $^a<hand>.comb.map({%val{$_}.fmt('%02d')}).join
+        <=> $^b<hand>.comb.map({%val{$_}.fmt('%02d')}).join }
 # part 1
 say sum @sorted.map: { ++$ * .<bid> };
 
@@ -47,8 +46,7 @@ my %jval = @jvals.kv.reverse;
 my @jsorted = @hands.sort:
    { (jtype($^a<hand>) <=> jtype($^b<hand>)) ||
             ($^a<hand>.comb.map({%jval{$_}.fmt('%02d')}).join
-         <=> $^b<hand>.comb.map({%jval{$_}.fmt('%02d')}).join)
-   }
+         <=> $^b<hand>.comb.map({%jval{$_}.fmt('%02d')}).join) }
 # part 2
 say sum @jsorted.map: { ++$ * .<bid> };
 
