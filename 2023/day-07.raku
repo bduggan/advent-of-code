@@ -7,12 +7,14 @@ enum types <
 
 sub type($hand) {
   my @cards = $hand.comb;
-  return FIVE-OF-A-KIND when (set @cards) == 1;
-  return FULL-HOUSE when (bag @cards).values.sort.join eq '23';
-  return FOUR-OF-A-KIND when (bag @cards).values.sort.join eq '14';
-  return THREE-OF-A-KIND when (bag @cards).values.sort.join eq '113';
-  return TWO-PAIR when (bag @cards).values.sort.join eq '122';
-  return ONE-PAIR when (bag @cards).values.sort.join eq '1112';
+  given (bag @cards).values.sort.join {
+    return FIVE-OF-A-KIND when '5';
+    return FULL-HOUSE when '23';
+    return FOUR-OF-A-KIND when '14';
+    return THREE-OF-A-KIND when '113';
+    return TWO-PAIR when '122';
+    return ONE-PAIR when '1112';
+  }
   return HIGH-CARD;
 }
 
