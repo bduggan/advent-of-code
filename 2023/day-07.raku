@@ -22,11 +22,11 @@ sub jtype($hand) {
   return type($hand) if @cards == 5;
   if @cards == 4 {
     my @opts = @cards.join X~ @cards.unique;
-    return max @opts.map: { type($_) } || HIGH-CARD;
+    return max @opts.map: { type($_) }
   }
   my @vals = [X~] @cards.unique xx (5 - @cards);
   my @opts = @cards.join X~ @vals;
-  max @opts.map: { type($_) } || HIGH-CARD;
+  max @opts.map: { type($_) }
 }
 
 my @vals = <2 3 4 5 6 7 8 9 T J Q K A>;
