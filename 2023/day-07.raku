@@ -1,13 +1,8 @@
 #!/usr/bin/env raku
 
 enum types <
-  HIGH-CARD
-  ONE-PAIR
-  TWO-PAIR
-  THREE-OF-A-KIND
-  FULL-HOUSE
-  FOUR-OF-A-KIND
-  FIVE-OF-A-KIND
+  HIGH-CARD ONE-PAIR TWO-PAIR THREE-OF-A-KIND
+  FULL-HOUSE FOUR-OF-A-KIND FIVE-OF-A-KIND
 >;
 
 sub type($hand) {
@@ -26,12 +21,9 @@ my %val = @vals.kv.reverse;
 
 my @hands = 'input'.IO.lines.words.map: -> $hand, $bid { %( :$hand, :$bid ) };
 my @sorted = @hands.sort:
-   { (type($^a<hand>) <=> type($^b<hand>))
-     || %val{ $^a<hand>.comb[0] } <=> %val{ $^b<hand>.comb[0] }
-     || %val{ $^a<hand>.comb[1] } <=> %val{ $^b<hand>.comb[1] }
-     || %val{ $^a<hand>.comb[2] } <=> %val{ $^b<hand>.comb[2] }
-     || %val{ $^a<hand>.comb[3] } <=> %val{ $^b<hand>.comb[3] }
-     || %val{ $^a<hand>.comb[4] } <=> %val{ $^b<hand>.comb[4] }
+   { (type($^a<hand>) <=> type($^b<hand>)) ||
+            $^a<hand>.comb.map({%val{$_}}).join
+        <=> $^b<hand>.comb.map({%val{$_}}).join
    }
 
 say sum @sorted.map: { ++$ * .<bid> };
