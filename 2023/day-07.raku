@@ -31,24 +31,18 @@ sub jtype($hand) {
   max @opts.map: { type($_) }
 }
 
-my @vals = <2 3 4 5 6 7 8 9 T J Q K A>;
-my %val = @vals.kv.reverse;
 
 my @hands = lines().words.map: -> $hand, $bid { %( :$hand, :$bid ) };
 
-my @sorted = @hands.sort:
-   { (type($^a<hand>) <=> type($^b<hand>)) ||
-            $^a<hand>.comb.map({%val{$_}.fmt('%02d')}).join
-        <=> $^b<hand>.comb.map({%val{$_}.fmt('%02d')}).join }
 # part 1
+my @vals = <2 3 4 5 6 7 8 9 T J Q K A>;
+my %val = @vals.kv.reverse;
+my @sorted = @hands.sort: { [ type($^a<hand>), |%val{ $^a<hand>.comb } ] }
 say sum @sorted.map: { ++$ * .<bid> };
 
+# part 2
 my @jvals = <J 2 3 4 5 6 7 8 9 T Q K A>;
 my %jval = @jvals.kv.reverse;
-my @jsorted = @hands.sort:
-   { (jtype($^a<hand>) <=> jtype($^b<hand>)) ||
-            ($^a<hand>.comb.map({%jval{$_}.fmt('%02d')}).join
-         <=> $^b<hand>.comb.map({%jval{$_}.fmt('%02d')}).join) }
-# part 2
+my @jsorted = @hands.sort: { [ jtype($^a<hand>), |%jval{ $^a<hand>.comb } ] }
 say sum @jsorted.map: { ++$ * .<bid> };
 
