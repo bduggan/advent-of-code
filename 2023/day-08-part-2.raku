@@ -36,7 +36,7 @@ say "ends: " ~ @ends.join(',');
 
 my @best;
 for @starts -> $s {
-  my @times = ($s X, @ends).map: -> ($s,$e) { steps-from($s,$e) }
+  my @times = ($s X, @ends).race.map: -> ($s,$e) { steps-from($s,$e) }
   @best.push: @times.min;
 }
 
