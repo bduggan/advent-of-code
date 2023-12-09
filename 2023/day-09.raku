@@ -1,23 +1,19 @@
 #!/usr/bin/env raku
 
-sub get-val(@seq is copy, Bool :$prev) {
-  my $n = @seq.tail;
-  my @f = @seq.head;
+sub get-val(@seq is copy) {
+  my $n = @seq.tail; # next
+  my @f = @seq.head; # first
 
-  loop {
-    @seq = @seq.rotor( 2 => -1).map: -> (\a,\b) { b - a }
+  while @seq.grep(so *) {
+    @seq = @seq.rotor(2 => -1).map: -> (\a,\b) { b - a }
     $n += @seq.tail;
     @f.push: @seq.head;
-    last unless @seq.first: so *
   }
-  return $n unless $prev;
   my $p = 0;
-  for @f.reverse -> $l {
-    $p = $l - $p;
-  }
-  return $p;
+  @f.reverse.map: { $p = $_ - $p }
+  return @( $n, $p );
 }
 
-my @lines = lines;
-say sum @lines.map: { get-val(.words) }
-say sum @lines.map: { get-val(.words, :prev) }
+my @lists = lines.map: { get-val(.words) }
+say [+] @lists».[0]; # part 1
+say [+] @lists».[1]; # part 2
