@@ -1,16 +1,14 @@
 #!/usr/bin/env raku
 
 sub get-val(@seq is copy, Bool :$prev) {
-  my @diffs;
   my $n = @seq.tail;
   my @f = @seq.head;
 
   loop {
-    my @next = @seq.rotor( 2 => -1).map: { - [-] @$_ }
-    $n += @next.tail;
-    @f.push: @next.head;
-    last unless @next.first: so *;
-    @seq = @next;
+    @seq = @seq.rotor( 2 => -1).map: -> (\a,\b) { b - a }
+    $n += @seq.tail;
+    @f.push: @seq.head;
+    last unless @seq.first: so *
   }
   return $n unless $prev;
   my $p = 0;
