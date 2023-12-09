@@ -1,7 +1,6 @@
 #!/usr/bin/env raku
 
-sub prev-val(@seq is copy) {
-  say "seq " ~ @seq;
+sub get-val(@seq is copy, Bool :$prev) {
   my @diffs;
   my $n = @seq.tail;
   my @f = @seq.head;
@@ -13,11 +12,14 @@ sub prev-val(@seq is copy) {
     last unless @next.first: so *;
     @seq = @next;
   }
-  my $prev = 0;
+  return $n unless $prev;
+  my $p = 0;
   for @f.reverse -> $l {
-    $prev = $l - $prev;
+    $p = $l - $p;
   }
-  return $prev;
+  return $p;
 }
 
-say sum 'input'.IO.lines.map: { prev-val(.words) }
+my @lines = lines;
+say sum @lines.map: { get-val(.words) }
+say sum @lines.map: { get-val(.words, :prev) }
