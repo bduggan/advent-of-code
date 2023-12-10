@@ -3,7 +3,7 @@
 # 1. modify "NB" below and add the right direction for start.
 # 2. run this, store the output in "path"
 # 3. modify the output again and change S into the right character
-# 4. run parse.raku to count how much is in the inside
+# 4. run day-10-part-2.raku to count how much is in the inside
 
 my @lines = 'input.real'.IO.lines;
 my @grid = @lines.map: *.comb;
