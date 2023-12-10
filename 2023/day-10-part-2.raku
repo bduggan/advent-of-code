@@ -5,25 +5,13 @@
 
 my regex looptop { '┌' '─'* '┐' }
 my regex loopbot { '└' '─'* '┘' }
-my regex vert {
-  | '└' '─'* '┐'
-  | '┌' '─'* '┘'
-  | '│'
+my regex vert    { '└' '─'* '┐' | '┌' '─'* '┘' | '│' }
+
+say sum 'path'.IO.lines.map: {
+  m/:s ^^ [ <looptop> | <loopbot> | <vert> ]* $$/ or die "bad line '$_'";
+  sum $<vert>
+       .map: -> $start,$end {
+          .comb[$start.from .. $end.from]
+          .grep( * eq ' ').elems
+       }
 }
-
-my $count;
-for 'path'.IO.lines {
-  m/:s ^^ [ <looptop> | <loopbot> | <vert> ]* $$/ or say "no match '$_'";
-  my @chars = .comb;
-  my $total = 0;
-  for $<vert>.Array -> $start,$end {
-    my $sub = @chars[$start.from .. $end.from];
-    $total += $sub.grep( * eq ' ').elems;
-  }
-  say $_ ~ ' ' ~ $total;
-  $count += $total;
-}
-
-say $count;
- 
-
