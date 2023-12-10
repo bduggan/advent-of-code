@@ -1,6 +1,6 @@
 #!/usr/bin/env raku
 
-# see day-10-part-1 for turning the input into a maze
+# see day-10-part-1 for turning the input into a path
 # with box drawing characters
 
 my regex looptop { '┌' '─'* '┐' }
