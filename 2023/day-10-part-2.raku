@@ -1,5 +1,10 @@
 #!/usr/bin/env raku
 
+# 1. modify "NB" below and add the right direction for start.
+# 2. run this, store the output in "path"
+# 3. modify the output again and change S into the right character
+# 4. run parse.raku to count how much is in the inside
+
 my @lines = 'input.real'.IO.lines;
 my @grid = @lines.map: *.comb;
 my @path;
@@ -18,21 +23,14 @@ my %box = %( '-' => '─', '|' => '│', 'L' => '└', 'J' => '┘', '7' => '┐
 sub mark(@pos) {
   my $at = @grid[ @pos[0] ][ @pos[1] ];
   @path[ @pos[0] ][ @pos[1] ] = %box{ $at };
-  die "what is $r" without %box{ $at }
 }
 
 my @pos = $r, $c;
-my $dir = 'N';
+my $dir = 'N';   # NB: adjust this for start
 # my $dir = 'E';
 my $steps = 0;
 loop {
-  unless $dir {
-    say "no dir, at { @pos } : @grid[ @pos[0] ][@pos[1]]";
-    exit;
-  }
-  # print "at {@pos}, going $dir...";
   @pos >>+=>> offset($dir);
-  # say "now at {@pos}";
   $steps += 1;
   given @grid[ @pos[0] ][ @pos[1] ] {
     mark(@pos);
@@ -47,42 +45,13 @@ loop {
     when 'F' { $dir = { N => 'E', W => 'S' }{ $dir }; }
   }
 }
-#say "steps $steps";
-#say "halfway: " ~ ($steps / 2);
+
 my $total;
 for @path -> $row {
-  my $in = False;
-  my $on = False;
-  my $count = 0;
   next without $row;
-  for @$row -> $c is copy {
-    # '─', '│', '└',  '┘', '┐', '┌', 'S');
-    $c //= ' ';
-    if $c (<) <└ ┌> {
-      #warn "error" if $on;
-      $on = True;
-    }
-    if $c eq '│' {
-      $in = !$in;
-    }
-    if $c eq '─' {
-      # warn "error" unless $on;
-    }
-    if $c (<) ( '┘', '┐' ) {
-      $on = False;
-      $in = !$in;
-    }
-    if $c eq 'S' {
-      # TODO
-    }
-    $count++ if $in;
-    print $c;
+  for @$row -> $c {
+    print $c // ' ';
   }
-  #print $count.fmt(' %5d');
   print "\n";
-  # say $row.map({ $_ // ' '}).join;
-  $total += $count;
 }
-#say "total is $total";
-# 647 is too high
-#
+
