@@ -1,5 +1,8 @@
 #!/usr/bin/env raku
 
+# see day-10-part-1 for turning the input into a maze
+# with box drawing characters
+
 my regex looptop { '┌' '─'* '┐' }
 my regex loopbot { '└' '─'* '┘' }
 my regex vert {
