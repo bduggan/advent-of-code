@@ -19,12 +19,13 @@ sub multi-blanks(@rows, $n, %multi) {
   @new;
 }
 
-my @m = 'input.real'.IO.slurp.lines.map: *.comb.Array;
+my @m = 'input'.IO.slurp.lines.map: *.comb.Array;
 
 my %row-multiples;
 my %col-multiples;
 
-my $count = 2; # 1_000_000;
+# part 2
+my $count = 1_000_000;
 my @n = multi-blanks(@m, $count, %row-multiples);
 my @o = transpose( multi-blanks( transpose( @n ), $count, %col-multiples ) );
 
@@ -52,7 +53,6 @@ for @combos -> ($a,$b) {
   for $a[1] ^... $b[1] {
     $dist += %col-multiples{ $_ } // 1;
   }
-  # say ++$ ~ " pair $a $b, distance $dist";
   $sum += $dist;
 }
 
