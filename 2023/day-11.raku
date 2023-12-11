@@ -19,7 +19,7 @@ sub multi-blanks(@rows, $n, %multi) {
   @new;
 }
 
-my @m = 'input'.IO.slurp.lines.map: *.comb.Array;
+my @m = 'input.real'.IO.slurp.lines.map: *.comb.Array;
 
 my %row-multiples;
 my %col-multiples;
@@ -39,8 +39,12 @@ for @o.kv -> $i, @row {
 say %row-multiples;
 say %col-multiples;
 
+my $done;
 my $sum;
-for @galaxies.combinations(2) -> ($a,$b) {
+my @combos = @galaxies.combinations(2);
+for @combos -> ($a,$b) {
+  $done++;
+  say "percent done: " ~ (100 * ($done) / @combos.elems) if $done %% 1000;
   my $dist = 0;
   for $a[0] ^... $b[0] {
     $dist += %row-multiples{ $_ } // 1;
@@ -48,7 +52,7 @@ for @galaxies.combinations(2) -> ($a,$b) {
   for $a[1] ^... $b[1] {
     $dist += %col-multiples{ $_ } // 1;
   }
-  say ++$ ~ " pair $a $b, distance $dist";
+  # say ++$ ~ " pair $a $b, distance $dist";
   $sum += $dist;
 }
 
