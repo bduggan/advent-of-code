@@ -1,3 +1,5 @@
+unit sub MAIN($file = 'input');
+
 sub lines-of-reflection(@lines) {
   my @h;
   LINE:
@@ -11,7 +13,7 @@ sub lines-of-reflection(@lines) {
 }
 
 my $total = 0;
-my @all = 'input.real'.IO.slurp.split(/\n\n/);
+my @all = $file.IO.slurp.split(/\n\n/);
 for @all {
   my @lines = .lines.map: *.comb;
   $total += sum lines-of-reflection(@lines);
