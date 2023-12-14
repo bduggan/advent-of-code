@@ -1,54 +1,31 @@
-my $in = q:to/IN/;
-O....#....
-O.OO#....#
-.....##...
-OO.#O....O
-.O.....O#.
-O.#..O.#.#
-..O..#O..O
-.......O..
-#....###..
-#OO..#....
-IN
+my $in = 'input'.IO.slurp;
 
-#(O O . O . O . . # #)
-#(. . . O O . . . . #)
-#(. O . . . # O . . O)
-#(. O . # . . . . . O)
-#(. # . O . . . . . .)
-#(# . # . . O # . # .)
-#(. . # . . . O . # #)
-#(. . . . O # . O # .)
-#(. . . . # . . . . .)
-#(. # . O . # O . . .)
-
-$in = 'input.real'.IO.slurp;
-
-my @trans = [Z] $in.lines.map: *.comb.Array;
-my @new;
-.join.say for @trans;
-say '--';
-for @trans -> @l {
-  my $str = @l.join;
-  #say "start $str";
-  loop {
-    #say 'before ' ~ $str;
-    $str ~~ s:g/ '.' 'O'/O./ or last;
-    #say 'after '  ~ $str;
+sub tilt(@rows) {
+  my @new;
+  for @rows -> @l {
+    my $str = @l.join;
+    loop {
+      $str ~~ s:g/ '.' 'O'/O./ or last;
+    }
+    @new.push: $str;
   }
-  @new.push: $str;
+  @new;
 }
 
-.say for @new;
-
-my $load = 0;
-
-for @new {
-  say "line $_";
-  for .comb.grep(:k, 'O') -> $i {
-    say "adding " ~ (.chars - $i);
-    $load += ( .chars - $i )
+sub load(@rows) {
+  my $load = 0;
+  for @rows {
+    for .comb.grep(:k, 'O') -> $i {
+      $load += ( .chars - $i )
+    }
   }
+  $load;
 }
 
+my @in = $in.lines.map: *.comb.Array;
+my @trans = [Z] @in;
+my $load = load( tilt(@trans) );
 say $load;
+
+# 1_000_000_000 times n s e w
+
