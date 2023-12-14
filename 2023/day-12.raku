@@ -11,7 +11,7 @@ multi count-em(@pat, @seq) {
 }
 
 multi count-em($pat,@seq is copy) {
- say "counting $pat vs " ~ @seq.raku;
+ # say "counting $pat vs " ~ @seq.raku;
  return 1 if $pat.chars == 0 && @seq == 0;
  return 0 unless $pat.chars > 0;
  return 0 if @seq.sum > $pat.comb(/'#' | '?'/).elems;
@@ -75,17 +75,23 @@ multi count-em($pat,@seq is copy) {
  -100;
 }
 
+use Test;
+
+sub want($pat,@seq,$val) {
+	is count-em($pat,@seq), $val, $pat.subst('#','X',:g) or diag $pat;
+}
+
 my $str = ('???.###' xx 5).join('?');
 my @seq = |@( 1,1,3 ) xx 5;
-say count-em($str,@seq);
-exit;
-say count-em('###.????###.???', [3,1,1,3,1,1]);
-say count-em('????###',[1,1,3]);
-say count-em('###.???', [3,1,1]);
-say count-em('????.######..#####.',[1,6,5]);
-say count-em('????.#...#...',[4,1,1]);
-say count-em('?', @(1,));
-say count-em('#', @(1,));
-say count-em('###.???', [3,1,1]);
-say count-em('???.###', @(1,1,3));
-say count-em('.??..??...?##.', @(1,1,3));
+
+want($str,@seq                               ,1);
+want('###.????###.???', [3,1,1,3,1,1]        ,1);
+want('????###',[1,1,3]                       ,1);
+want('###.???', [3,1,1]                      ,1);
+want('????.######..#####.',[1,6,5]           ,4);
+want('????.#...#...',[4,1,1]                 ,1);
+want('?', @(1,)                              ,1);
+want('#', @(1,)                              ,1);
+want('###.???', [3,1,1]                      ,1);
+want('???.###', @(1,1,3)                     ,1);
+want('.??..??...?##.', @(1,1,3)              ,4);
