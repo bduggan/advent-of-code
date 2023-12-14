@@ -12,6 +12,7 @@ multi count-em(@pat, @seq) {
 
 multi count-em($pat,@seq is copy) {
  say "counting $pat vs " ~ @seq.raku;
+ return 1 if $pat.chars == 0 && @seq == 0;
  return 0 unless $pat.chars > 0;
  return 0 if @seq.sum > $pat.comb(/'#' | '?'/).elems;
  my @pats = $pat.split('.').grep: *.chars > 0;
@@ -22,8 +23,8 @@ multi count-em($pat,@seq is copy) {
 	 return 1 if @seq eql (1,1) && $pat.chars == 3;
    return 2 if @seq eql (1) && $pat.chars == 2;
    return 1 if @seq == 1 && $pat.chars == @seq[0];
-   say "cannot divide $pat";
-   return -1000;
+   #say "notyet: cannot divide $pat";
+   #return -1000;
  }
 
  my $first = @pats.shift;
@@ -59,10 +60,28 @@ multi count-em($pat,@seq is copy) {
    }
  }
 
- say "notyet.  first $first, h is { h } pats { @pats.raku }, seq { @seq.raku }";
+ if $first eq '????###' && h == 1 && [h,|@seq[0,1]] eql (1,1,3) {
+  @seq.shift;
+  @seq.shift;
+  return count-em(@pats,@seq);
+ }
+
+ if $first eq '###????' && [ h, |@seq[0,1] ] eql (3,1,1) {
+  @seq.shift for 1,2;
+  return count-em(@pats,@seq);
+ }
+
+ say "notyet.  first $first, pats { @pats.raku }, seq {h} and { @seq.raku }";
  -100;
 }
 
+my $str = ('???.###' xx 5).join('?');
+my @seq = |@( 1,1,3 ) xx 5;
+say count-em($str,@seq);
+exit;
+say count-em('###.????###.???', [3,1,1,3,1,1]);
+say count-em('????###',[1,1,3]);
+say count-em('###.???', [3,1,1]);
 say count-em('????.######..#####.',[1,6,5]);
 say count-em('????.#...#...',[4,1,1]);
 say count-em('?', @(1,));
