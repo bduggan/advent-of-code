@@ -1,15 +1,6 @@
-
-my $in = q:to/IN/;
-.|.
-...
-...
-IN
 my @lines = 'input.real'.IO.lines;
 #my @lines = 'input'.IO.lines;
-#my @lines = $in.lines;
 my @grid = @lines.map: *.comb.Array;
-my @energized = @lines.map: { [ '.' xx .chars ] };
-
 my \rows = @grid.elems;
 my \cols = @grid[0].elems;
 
@@ -20,8 +11,6 @@ sub offset($dir) {
   return @(  1, 0  ) when 'S';
   return @(  0, -1 ) when 'W';
 }
-
-use Repl::Tools;
 
 my $id = 0;
 
@@ -64,31 +53,66 @@ class Ray {
                   }
                 }
     }
-    # stay in bounds
-    #return -1 unless self.in-bounds;
     return $new;
   }
 }
 
-my %seen;
-my @rays = Ray.new: pos => [0,0], dir => 'E';
-loop {
-  #  say 'grid vs energized: ';
-  #for @grid Z, @energized -> ($g,$e) {
-  #  say $g ~ '  ' ~ $e;
-  #}
-  for @rays -> $r {
-    @energized[ $r.row ][ $r.col ] = '#';
-    given $r.move {
-      when Ray { @rays.push: $_ unless %seen{ $_.posdir }++ }
-      when -1 { @rays.pop }
-      when Nil { }
+sub energized-count($start-row, $start-col, $start-dir) {
+  my %seen;
+  my @energized = @lines.map: { [ '.' xx .chars ] };
+  my @rays = Ray.new: pos => [$start-row,$start-col], dir => $start-dir;
+  my %pruneable;
+  loop {
+    #  say 'grid vs energized: ';
+    #for @grid Z, @energized -> ($g,$e) {
+    #  say $g ~ '  ' ~ $e;
+    #}
+    for @rays -> $r {
+      @energized[ $r.row ][ $r.col ] = '#';
+      given $r.move {
+        when Ray { @rays.push: $_ unless %seen{ $_.posdir }++ }
+        when -1 { @rays.pop }
+        when Nil { }
+      }
+      #.say for @rays;
     }
     @rays = @rays.grep: *.in-bounds;
-    #.say for @rays;
+    @rays = @rays.grep: { not %pruneable{ .posdir }++ };
+    last unless @rays;
   }
-  last unless @rays;
+
+  sum @energized.map: *.comb.grep( * eq '#' );
 }
 
-my $count = sum @energized.map: *.comb.grep( * eq '#' );
-say $count;
+sub elapsed($count, $percent-done) {
+  #return unless $count %% 5;
+  say "working on $count on thread { $*THREAD.id }";
+  my $secs-passed = DateTime.now - INIT DateTime.now;
+  #say $percent-done ~ " percent in $secs-passed seconds";
+  # if 5 seconds have passed and we are 30% done
+  # estimated time is
+  #     30% == 5 / total
+  #     total = 5 / 0.3
+  my $est-seconds = $secs-passed / ( ($percent-done + 0.00001) / 100);
+  my ($secs,$mins,$hours,$days) = $est-seconds.polymod( 60, 60, 24).map: { .fmt('%.1f') }
+  say "estimate (thread { $*THREAD.id }) : $days days, $hours hours, $mins mins, $secs secs";
+}
+
+my Channel $c .= new;
+my @all;
+start loop { @all.push($c.receive) }
+# race for (0..^rows).race(batch => 1, degree => 4) -> \r {
+for (0..^rows) -> \r {
+  say "row { r } of { rows }";
+  $c.send: energized-count(r,0,'E');
+  $c.send: energized-count(r,cols - 1,'W');
+  elapsed(r, 100 * r / rows );
+}
+#race for (0..^cols).race(batch => 1, degree => 4) -> \c {
+for (0..^cols) -> \c {
+  #say "col { c } of { cols }";
+  $c.send: energized-count(0,c,'S');
+  $c.send: energized-count(0,rows - 1,'N');
+  elapsed(c, 100 * c / cols );
+}
+say @all.max;
