@@ -85,8 +85,7 @@ sub energized-count($start-row, $start-col, $start-dir) {
 }
 
 sub elapsed($count, $percent-done) {
-  #return unless $count %% 5;
-  say "working on $count on thread { $*THREAD.id }";
+  return unless $count %% 5;
   my $secs-passed = DateTime.now - INIT DateTime.now;
   #say $percent-done ~ " percent in $secs-passed seconds";
   # if 5 seconds have passed and we are 30% done
@@ -94,23 +93,24 @@ sub elapsed($count, $percent-done) {
   #     30% == 5 / total
   #     total = 5 / 0.3
   my $est-seconds = $secs-passed / ( ($percent-done + 0.00001) / 100);
-  my ($secs,$mins,$hours,$days) = $est-seconds.polymod( 60, 60, 24).map: { .fmt('%.1f') }
-  say "estimate (thread { $*THREAD.id }) : $days days, $hours hours, $mins mins, $secs secs";
+  my $remaining = $est-seconds - $secs-passed;
+  my ($secs,$mins,$hours,$days) = $remaining.polymod( 60, 60, 24).map: { .fmt('%.1f') }
+  say "remaining estimate (thread { $*THREAD.id }) : $days days, $hours hours, $mins mins, $secs secs";
 }
 
+# part 1
+say energized-count(0,0,'E');
+
+# part 2
 my Channel $c .= new;
 my @all;
 start loop { @all.push($c.receive) }
-# race for (0..^rows).race(batch => 1, degree => 4) -> \r {
-for (0..^rows) -> \r {
-  say "row { r } of { rows }";
+race for (0..^rows).race(batch => 1, degree => 4) -> \r {
   $c.send: energized-count(r,0,'E');
   $c.send: energized-count(r,cols - 1,'W');
   elapsed(r, 100 * r / rows );
 }
-#race for (0..^cols).race(batch => 1, degree => 4) -> \c {
-for (0..^cols) -> \c {
-  #say "col { c } of { cols }";
+race for (0..^cols).race(batch => 1, degree => 4) -> \c {
   $c.send: energized-count(0,c,'S');
   $c.send: energized-count(0,rows - 1,'N');
   elapsed(c, 100 * c / cols );
