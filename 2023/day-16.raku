@@ -4,7 +4,8 @@ my $in = q:to/IN/;
 ...
 ...
 IN
-my @lines = 'input'.IO.lines;
+my @lines = 'input.real'.IO.lines;
+#my @lines = 'input'.IO.lines;
 #my @lines = $in.lines;
 my @grid = @lines.map: *.comb.Array;
 my @energized = @lines.map: { [ '.' xx .chars ] };
@@ -72,10 +73,10 @@ class Ray {
 my %seen;
 my @rays = Ray.new: pos => [0,0], dir => 'E';
 loop {
-  say 'grid vs energized: ';
-  for @grid Z, @energized -> ($g,$e) {
-    say $g ~ '  ' ~ $e;
-  }
+  #  say 'grid vs energized: ';
+  #for @grid Z, @energized -> ($g,$e) {
+  #  say $g ~ '  ' ~ $e;
+  #}
   for @rays -> $r {
     @energized[ $r.row ][ $r.col ] = '#';
     given $r.move {
@@ -84,12 +85,10 @@ loop {
       when Nil { }
     }
     @rays = @rays.grep: *.in-bounds;
-    .say for @rays;
+    #.say for @rays;
   }
   last unless @rays;
 }
-
-.say for @energized;
 
 my $count = sum @energized.map: *.comb.grep( * eq '#' );
 say $count;
