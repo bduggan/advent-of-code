@@ -98,6 +98,10 @@ sub elapsed($count, $percent-done) {
   say "remaining estimate (thread { $*THREAD.id }) : $days days, $hours hours, $mins mins, $secs secs";
 }
 
+# part 1
+say energized-count(0,0,'E');
+
+# part 2
 my Channel $c .= new;
 my @all;
 start loop { @all.push($c.receive) }
