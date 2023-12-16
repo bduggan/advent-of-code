@@ -1,12 +1,13 @@
 
-# my @grid = 'input'.IO.lines.map: *.comb.Array;
 my $in = q:to/IN/;
-.\.
+.|.
 ...
-.-.
 ...
 IN
-my @grid = $in.lines.map: *.comb.Array;
+my @lines = 'input'.IO.lines;
+#my @lines = $in.lines;
+my @grid = @lines.map: *.comb.Array;
+my @energized = @lines.map: { [ '.' xx .chars ] };
 
 my \rows = @grid.elems;
 my \cols = @grid[0].elems;
@@ -26,7 +27,12 @@ my $id = 0;
 class Ray {
   has $.id = ++$id;
   has Int @.pos;  # row,col
+  method row { @.pos[0] }
+  method col { @.pos[1] }
   has Str $.dir;  # N,S,E,W
+  method posdir {
+    @.pos.join(',') ~ ' ' ~ $.dir;
+  }
   method in-bounds {
     0 <= @!pos[0] < rows and 0 <= @!pos[1] < cols
   }
@@ -47,24 +53,43 @@ class Ray {
                     $!dir = 'W'; @!pos »+=» offset($!dir);
                   }
                 }
-      when '|'  { ... }
+      when '|'  {
+                  if $!dir eq any(<N S>) {
+                    @!pos »+=» offset($!dir)
+                  } else {
+                    $new = Ray.new: dir => 'N', pos => @!pos »+» offset('N');
+                    $new = Nil unless $new.in-bounds;
+                    $!dir = 'S'; @!pos »+=» offset($!dir);
+                  }
+                }
     }
     # stay in bounds
-    return -1 unless self.in-bounds;
+    #return -1 unless self.in-bounds;
     return $new;
   }
 }
 
+my %seen;
 my @rays = Ray.new: pos => [0,0], dir => 'E';
 loop {
+  say 'grid vs energized: ';
+  for @grid Z, @energized -> ($g,$e) {
+    say $g ~ '  ' ~ $e;
+  }
   for @rays -> $r {
-    .say for @rays;
+    @energized[ $r.row ][ $r.col ] = '#';
     given $r.move {
-      when Ray { @rays.push: $_ }
+      when Ray { @rays.push: $_ unless %seen{ $_.posdir }++ }
       when -1 { @rays.pop }
       when Nil { }
     }
+    @rays = @rays.grep: *.in-bounds;
+    .say for @rays;
   }
   last unless @rays;
 }
 
+.say for @energized;
+
+my $count = sum @energized.map: *.comb.grep( * eq '#' );
+say $count;
