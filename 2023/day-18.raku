@@ -31,8 +31,14 @@ my @strings;
 for @grid -> $r {
   next unless $r;
   my $str = '';
+  my $c = ' ';
+  my $prev = ' ';
   for @$r {
-    $str ~= $_ // '.';
+    $str ~= $_ // $c;
+    if $_ && $_ eq '#' && $prev ne '#' {
+      $c = '.'; # ($c eq ' ' ?? '.' !! ' ');
+    }
+    $prev = $_ // ' ';
   }
   @strings.push: $str;
 }
