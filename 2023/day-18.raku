@@ -60,16 +60,12 @@ my regex looptop { '┌' '─'* '┐' }
 my regex loopbot { '└' '─'* '┘' }
 my regex vert    { '└' '─'* '┐' | '┌' '─'* '┘' | '│' }
 
-my @all;
+my $count;
 @strings.map: {
-  my @c = .comb.map: { $_ eq ' ' ?? ' ' !! '#' };
+  $count += .comb.grep(* ne ' ').elems;
   m/:s ^^ [ <looptop> | <loopbot> | <vert> ]* $$/ or die "bad line '$_'";
-  $<vert>.map: {
-    for $^begin.from .. $^end.from {
-      @c[$_] = '#';
-    }
+  for $<vert><> {
+    $count += $^end.from - $^begin.to 
   }
-  @all.push: @c.join;
 }
-
-say sum @all.map: { .comb('#').elems }
+say $count;
