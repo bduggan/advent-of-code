@@ -1,6 +1,6 @@
 #!/usr/bin/env raku
 
-my $in = 'input'.IO.slurp;
+my $in = 'input.real'.IO.slurp;
 my @grid = $in.lines.map: *.comb.Array;
 my \cols = @grid[0].elems;
 my \rows = @grid.elems;
@@ -9,6 +9,7 @@ class Path {
   has @.pos;
   has @.prev;
   has @.moves;
+  has %.seen;
   method row { @.pos[0] }
   method col { @.pos[1] }
   method heat-loss { sum @.prev // 0; }
@@ -35,6 +36,7 @@ class Path {
     self.move(1,0,'down')
   }
   method move($d-row,$d-col,$dir) {
+    return Empty if %.seen{ (@.pos[0] + $d-row ) ~ ',' ~ (@.pos[1] + $d-col) }++;
     @.moves.push: $dir;
     @.pos »+=» ( $d-row, $d-col );
     @.prev.unshift: @grid[ self.row ][ self.col ];
@@ -71,7 +73,7 @@ loop {
     %min-heatloss{ .posstr } ||= .heat-loss;
     %min-heatloss{ .posstr } min= .heat-loss;
   }
-  @edge = @edge.grep({ .heat-loss <= %min-heatloss{ .posstr } + 2 });
+  @edge = @edge.grep({ .heat-loss <= %min-heatloss{ .posstr } + 1  });
   say "nodes in edge: " ~ @edge.elems;
   for @edge {
     if (.row == rows - 1 and .col == cols - 1) {
