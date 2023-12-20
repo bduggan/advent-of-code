@@ -1,6 +1,6 @@
 #!/usr/bin/env raku
 
-my ($code,$input) = 'input'.IO.slurp.split("\n\n");
+my ($code,$input) = 'input.real'.IO.slurp.split("\n\n");
 grammar Gear {
   rule TOP {
      <label> '{' [ <expr>+ % ',' ] '}'
