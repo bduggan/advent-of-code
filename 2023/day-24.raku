@@ -45,7 +45,7 @@ class Hailstone {
 #19, 13, 30 @ -2,  1, -2
 #18, 19, 22 @ -1, -1, -2
 #IN
-my $in = 'input'.IO.slurp;
+my $in = 'input.real'.IO.slurp;
 
 my @hailstones = $in.lines.map: {
   my ($pos, $vel) = .split('@');
@@ -53,21 +53,25 @@ my @hailstones = $in.lines.map: {
 }
 
 my $count = 0;
-my @bounds = 7, 27;
+#my @bounds = 7, 27;
+my @bounds = 200000000000000, 400000000000000;
+
+my $combos = @hailstones.combinations(2).elems;
 for @hailstones.combinations(2) -> ($a, $b) {
-  say "\nHailstone A " ~ $a.gist;
-  say "Hailstone B " ~ $b.gist;
+  say "did " ~ ++$ ~ " out of $combos";
+  #say "\nHailstone A " ~ $a.gist;
+  #say "Hailstone B " ~ $b.gist;
   my $int;
-  try { $int = intersection( $a.pos, $a.vel, $b.pos, $b.vel ); say $int; };
+  try { $int = intersection( $a.pos, $a.vel, $b.pos, $b.vel ); my $str = $int.Str; };
   if $int {
     if (@bounds[0] <= $int.all <= @bounds[1]) {
       $count++;
-      say "inside: " ~ $int.raku;
+      #say "inside: " ~ $int.raku;
     } else {
-      say "outside: " ~ $int.raku;
+      #say "outside: " ~ $int.raku;
     }
   } else {
-    say "parallel";
+    #say "parallel";
   }
 }
 
