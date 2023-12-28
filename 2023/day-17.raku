@@ -53,25 +53,29 @@ class Path {
     return $.r == rows - 1 && $.c == cols - 1;
   }
   method uniq-key {
-    @.prev.tail(4).map(*.join(',')).join('|') ~ "|$.r,$.c";
+    #@.steps.tail(3).join ~ "|$.r,$.c";
+    "$.r,$.c";
   }
   method distance {
     abs( rows - $.r ) + abs( cols - $.c)
   }
   method reasonable {
-    #return False if self.heat-loss > 130;
-    #return False if self.heat-loss >= (130 - self.distance * 2);
+    my $max-found = 120; #108;
+    return False if self.heat-loss > $max-found;
+    #return False if self.heat-loss >= ($max-found - self.distance);
     return True;
   }
   method sort-key {
-    self.distance
+    self.heat-loss
     #(.heat-loss / 200) + 10 * (.distance / (rows * cols) ) }
   }
   method dump {
     my %path = self.prev.map: { .[0] ~ ',' ~ .[1]  => 'X' }
     for @grid.kv -> $r, @row {
       for @row.kv -> $c, $col {
-        if %path{ "$r,$c" } {
+        if ($r == self.r && $c == self.c) {
+          print t.color('#ddddff') ~ t.reverse-video ~ @grid[$r][$c] ~ t.text-reset;
+        } elsif %path{ "$r,$c" } {
           print t.reverse-video ~ @grid[$r][$c] ~ t.text-reset;
         } else {
           print @grid[$r][$c];
@@ -84,19 +88,22 @@ class Path {
 
 my $p = Path.new( r => 0, c => 0 );
 my $q = $p.go-right.go-right.go-down.go-right.go-right.go-right.go-up.go-right.go-right.go-right;
+say $q.go-down.go-down.go-right.go-right.go-down.go-down.go-right.go-down.go-down.go-down.go-right.go-down.go-down.go-down.go-left.go-down.go-down.go-right.heat-loss;
 #for 1..10 {
 #  $p = $p.go-right or last;
 #  say "iteration $_, we are at " ~ $p.at;
 #}
 
 my %seen;
-
 my $min-heatloss = Inf;
+
 sub fill {
  my $p = Path.new( r => 0, c => 0 );
  my @perimeter = [ $p, ];
  loop {
    say "--- perimeter: " ~ @perimeter.elems;
+   say "min distance: " ~ min @perimeter.map: *.distance;
+   say "seen : " ~ %seen.keys.elems;
    my @n; # next
    for @perimeter -> $p {
      with $p.go-right { @n.push: $^x }
@@ -105,15 +112,25 @@ sub fill {
      with $p.go-up    { @n.push: $^x }
    };
    @perimeter = @n;
-   @perimeter = @perimeter.grep: { !%seen{ .uniq-key }++ };
+   @perimeter = @perimeter.grep: { .reasonable }
+   @perimeter = @perimeter.sort({ .sort-key }).head(1000);
+   @perimeter = @perimeter.grep: {
+     !%seen{ .uniq-key } || ( %seen{ .uniq-key } > .heat-loss )
+   };
+   for @perimeter {
+     %seen{ .uniq-key } = .heat-loss;
+   }
    last unless @perimeter.elems;
    my @ended = @perimeter.grep: *.at-end;
    next unless @ended;
-   $min-heatloss min= @ended.map(*.heat-loss).min;
+   my $new = @ended.map(+*.heat-loss).min;
+   if $new < $min-heatloss {
+     $min-heatloss = $new;
+   }
    for @ended -> $e {
     say '----> heatloss: ' ~ $e.heat-loss;
     say '----> path : ' ~ $e.prev.raku;
-    $e.dump;
+    #$e.dump;
    }
  }
 }
