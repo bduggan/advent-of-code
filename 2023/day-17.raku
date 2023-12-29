@@ -1,6 +1,9 @@
 #!/usr/bin/env raku
 
-unit sub MAIN($file = 'input');
+use lib $*HOME.child('raku-elapsed/lib');
+unit sub MAIN($file = 'input', :$max-found = 840);
+
+use Elapsed;
 use Repl::Tools;
 use Terminal::ANSI::OO 't';
 
@@ -19,61 +22,70 @@ class Path {
   has @.prev; # (r,c), (r,c), ...
   has @.steps = ('');
   method go-right {
-    return Nil unless $.c < cols - 1;
+    return Nil unless $!c < cols - 1;
     return Nil if @.steps.tail(3).join eq 'rrr';
     return Nil if @.steps.tail(1).join eq 'l';
-    my $heat-loss = $!heat-loss + @grid[$.r][$.c + 1];
-    return Path.new: :$.r, :c($.c + 1), prev => ( |@.prev, ($.r, $.c) ), steps => ( |@.steps,'r'), :$heat-loss;
+    my $heat-loss = $!heat-loss + @grid[$!r][$!c + 1];
+    return Path.new: :$!r, :c($!c + 1), prev => ( |@.prev, ($!r, $!c) ), steps => ( |@.steps,'r'), :$heat-loss;
   }
   method go-left {
-    return Nil unless $.c > 0;
+    return Nil unless $!c > 0;
     return Nil if @.steps.tail(3).join eq 'lll';
     return Nil if @.steps.tail(1).join eq 'r';
-    my $heat-loss = $!heat-loss + @grid[$.r][$.c - 1];
-    return Path.new: :$.r, :c($.c - 1), prev => ( |@.prev, ($.r, $.c) ), steps => ( |@.steps,'l' ), :$heat-loss;
+    my $heat-loss = $!heat-loss + @grid[$!r][$!c - 1];
+    return Path.new: :$!r, :c($!c - 1), prev => ( |@.prev, ($!r, $!c) ), steps => ( |@.steps,'l' ), :$heat-loss;
   }
   method go-down {
-    return Nil unless $.r < rows - 1;
+    return Nil unless $!r < rows - 1;
     return Nil if @.steps.tail(3).join eq 'ddd';
     return Nil if @.steps.tail(1).join eq 'u';
-    my $heat-loss = $!heat-loss + @grid[$.r + 1][$.c];
-    return Path.new: :r( $.r + 1), :$.c, prev => ( |@.prev, ($.r, $.c) ), steps => ( |@.steps,'d' ), :$heat-loss;
+    my $heat-loss = $!heat-loss + @grid[$!r + 1][$!c];
+    return Path.new: :r( $!r + 1), :$!c, prev => ( |@.prev, ($!r, $!c) ), steps => ( |@.steps,'d' ), :$heat-loss;
   }
   method go-up {
-    return Nil unless $.r > 0;
+    return Nil unless $!r > 0;
     return Nil if @.steps.tail(3).join eq 'uuu';
     return Nil if @.steps.tail(1).join eq 'd';
-    my $heat-loss = $!heat-loss + @grid[$.r - 1][$.c];
-    return Path.new: :r( $.r - 1), :$.c, prev => ( |@.prev, ($.r, $.c) ), steps => ( |@.steps,'u' ), :$heat-loss;
-  }
-  method at {
-    return '#' unless 0 <= $.c < cols;
-    return '#' unless 0 <= $.r < rows;
-    @grid[$.r][$.c]
+    my $heat-loss = $!heat-loss + @grid[$!r - 1][$!c];
+    return Path.new: :r( $!r - 1), :$!c, prev => ( |@.prev, ($!r, $!c) ), steps => ( |@.steps,'u' ), :$heat-loss;
   }
   #method heat-loss {
-  #  (sum @.prev.map: -> ($r, $c) { @grid[$r][$c] }) - @grid[0][0] + @grid[$.r][$.c]
+  #  (sum @.prev.map: -> ($r, $c) { @grid[$r][$c] }) - @grid[0][0] + @grid[$!r][$!c]
   #}
   method at-end {
-    return $.r == rows - 1 && $.c == cols - 1;
+    return $!r == rows - 1 && $!c == cols - 1;
   }
   method uniq-key {
-    @.steps.tail(3).join ~ "|$.r,$.c";
-    #return "$.r,$.c";
+    my $last := @!steps.tail;
+    my $key = $last;
+    for @!steps.tail(3).reverse {
+      once next;
+      last unless $_ eq $last;
+      $key ~= $last;
+    }
+    return $key ~ "|$!r,$!c";
+    #@.steps.tail(3).join ~ "|$!r,$!c";
+    #return "$!r,$!c";
   }
   method distance {
-    abs( rows - $.r ) + abs( cols - $.c)
+    abs( rows - $!r ) + abs( cols - $!c)
   }
+  # my $max-found := 840; #103;  #850;
   method reasonable {
-    return True;
-    my $max-found = 120; #108;
-    #my $max-found = 1100; # found 1190; 1100 is too high too
+    #return True;
+    #my $max-found = 120; #108;
+    # 834 wrong
+    # 936 wrong
+    # 915 wrong
+    # 927 wrong
+    # found 1190; 1100 is too high too, 1014 wrong, 967 wrong but right for someone else
     return False if self.heat-loss > $max-found;
-    return False if self.heat-loss >= ($max-found - self.distance);
+    return False if self.heat-loss >= ($max-found + self.distance * 9);
     return True;
   }
   method sort-key {
-    return self.distance; #, self.heat-loss ];
+    return self.heat-loss;
+    return [ self.distance, self.heat-loss ];
     #(.heat-loss / 200) + 10 * (.distance / (rows * cols) ) }
   }
   method dump {
@@ -102,8 +114,8 @@ sub fill {
  my $round = 0;
  loop {
    say "round { $round++} : perimeter: " ~ @perimeter.elems;
-   say "min distance: " ~ min @perimeter.map: *.distance;
-   say "seen : " ~ %seen.keys.elems;
+   say "min distance: " ~ (min @perimeter.map: *.distance) ~ " and min heat loss is " ~ $min-heatloss.raku;
+   #elapsed($round,:500total);
    my @n; # next
    for @perimeter -> $p {
      with $p.go-right { @n.push($^x) unless %seen{ $x.uniq-key } && %seen{ $x.uniq-key } < $p.heat-loss }
@@ -117,8 +129,8 @@ sub fill {
      %seen{ .uniq-key } = .heat-loss;
    }
    @perimeter = @perimeter.sort({.heat-loss}).unique( as => { .uniq-key } );
-   #@perimeter .= sort({ .sort-key });
-   #@perimeter .= head(1000);
+   @perimeter .= sort({ .sort-key });
+   @perimeter .= head(10_000);
    last unless @perimeter.elems;
    my @ended = @perimeter.grep: *.at-end;
    next unless @ended;
@@ -129,8 +141,8 @@ sub fill {
    for @ended -> $e {
     say '----> heatloss: ' ~ $e.heat-loss;
     #say '----> path : ' ~ $e.prev.raku;
-    $e.dump;
-    say $e;
+    #$e.dump;
+    #say $e;
    }
  }
 }
