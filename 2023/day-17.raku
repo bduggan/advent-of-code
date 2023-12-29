@@ -54,19 +54,20 @@ class Path {
   }
   method uniq-key {
     #@.steps.tail(3).join ~ "|$.r,$.c";
-    "$.r,$.c";
+    return "$.r,$.c";
   }
   method distance {
     abs( rows - $.r ) + abs( cols - $.c)
   }
   method reasonable {
-    my $max-found = 120; #108;
+    # my $max-found = 120; #108;
+    my $max-found = 1100; # found 1190; 1100 is too high too
     return False if self.heat-loss > $max-found;
-    #return False if self.heat-loss >= ($max-found - self.distance);
+    return False if self.heat-loss >= ($max-found - self.distance);
     return True;
   }
   method sort-key {
-    self.heat-loss
+    return [ self.distance, self.heat-loss ];
     #(.heat-loss / 200) + 10 * (.distance / (rows * cols) ) }
   }
   method dump {
@@ -86,14 +87,6 @@ class Path {
    }
 }
 
-my $p = Path.new( r => 0, c => 0 );
-my $q = $p.go-right.go-right.go-down.go-right.go-right.go-right.go-up.go-right.go-right.go-right;
-say $q.go-down.go-down.go-right.go-right.go-down.go-down.go-right.go-down.go-down.go-down.go-right.go-down.go-down.go-down.go-left.go-down.go-down.go-right.heat-loss;
-#for 1..10 {
-#  $p = $p.go-right or last;
-#  say "iteration $_, we are at " ~ $p.at;
-#}
-
 my %seen;
 my $min-heatloss = Inf;
 
@@ -112,14 +105,15 @@ sub fill {
      with $p.go-up    { @n.push: $^x }
    };
    @perimeter = @n;
-   @perimeter = @perimeter.grep: { .reasonable }
-   @perimeter = @perimeter.sort({ .sort-key }).head(1000);
-   @perimeter = @perimeter.grep: {
+   @perimeter .= grep: { .reasonable }
+   @perimeter .= grep: {
      !%seen{ .uniq-key } || ( %seen{ .uniq-key } > .heat-loss )
    };
    for @perimeter {
      %seen{ .uniq-key } = .heat-loss;
    }
+   @perimeter .= sort({ .sort-key });
+   @perimeter .= head(100);
    last unless @perimeter.elems;
    my @ended = @perimeter.grep: *.at-end;
    next unless @ended;
