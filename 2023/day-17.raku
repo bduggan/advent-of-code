@@ -49,9 +49,6 @@ class Path {
     my $heat-loss = $!heat-loss + @grid[$!r - 1][$!c];
     return Path.new: :r( $!r - 1), :$!c, prev => ( |@.prev, ($!r, $!c) ), steps => ( |@.steps,'u' ), :$heat-loss;
   }
-  #method heat-loss {
-  #  (sum @.prev.map: -> ($r, $c) { @grid[$r][$c] }) - @grid[0][0] + @grid[$!r][$!c]
-  #}
   method at-end {
     return $!r == rows - 1 && $!c == cols - 1;
   }
@@ -63,22 +60,12 @@ class Path {
       last unless $_ eq $last;
       $key ~= $last;
     }
-    return $key ~ "|$!r,$!c";
-    #@.steps.tail(3).join ~ "|$!r,$!c";
-    #return "$!r,$!c";
+    $key ~ "|$!r,$!c";
   }
   method distance {
     abs( rows - $!r ) + abs( cols - $!c)
   }
-  # my $max-found := 840; #103;  #850;
   method reasonable {
-    #return True;
-    #my $max-found = 120; #108;
-    # 834 wrong
-    # 936 wrong
-    # 915 wrong
-    # 927 wrong
-    # found 1190; 1100 is too high too, 1014 wrong, 967 wrong but right for someone else
     return False if self.heat-loss > $max-found;
     return False if self.heat-loss >= ($max-found + self.distance * 9);
     return True;
@@ -115,7 +102,6 @@ sub fill {
  loop {
    say "round { $round++} : perimeter: " ~ @perimeter.elems;
    say "min distance: " ~ (min @perimeter.map: *.distance) ~ " and min heat loss is " ~ $min-heatloss.raku;
-   #elapsed($round,:500total);
    my @n; # next
    for @perimeter -> $p {
      with $p.go-right { @n.push($^x) unless %seen{ $x.uniq-key } && %seen{ $x.uniq-key } < $p.heat-loss }
