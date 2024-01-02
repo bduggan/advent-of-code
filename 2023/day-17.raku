@@ -21,31 +21,33 @@ class Path {
   has $.heat-loss = 0;
   has @.prev; # (r,c), (r,c), ...
   has @.steps = ('');
+  method okay-to-go($dir) {
+    return False if @.steps.tail(10).join eq $dir x 10;
+    return True if @.steps.tail(3 | 2 | 1).unique eq $dir;
+    return True if @.steps.tail(4).unique ne $dir;
+    return True;
+  }
   method go-right {
     return Nil unless $!c < cols - 1;
-    return Nil if @.steps.tail(3).join eq 'rrr';
-    return Nil if @.steps.tail(1).join eq 'l';
+    return Nil unless self.okay-to-go('r');
     my $heat-loss = $!heat-loss + @grid[$!r][$!c + 1];
     return Path.new: :$!r, :c($!c + 1), prev => ( |@.prev, ($!r, $!c) ), steps => ( |@.steps,'r'), :$heat-loss;
   }
   method go-left {
     return Nil unless $!c > 0;
-    return Nil if @.steps.tail(3).join eq 'lll';
-    return Nil if @.steps.tail(1).join eq 'r';
+    return Nil unless self.okay-to-go('l');
     my $heat-loss = $!heat-loss + @grid[$!r][$!c - 1];
     return Path.new: :$!r, :c($!c - 1), prev => ( |@.prev, ($!r, $!c) ), steps => ( |@.steps,'l' ), :$heat-loss;
   }
   method go-down {
     return Nil unless $!r < rows - 1;
-    return Nil if @.steps.tail(3).join eq 'ddd';
-    return Nil if @.steps.tail(1).join eq 'u';
+    return Nil unless self.okay-to-go('d');
     my $heat-loss = $!heat-loss + @grid[$!r + 1][$!c];
     return Path.new: :r( $!r + 1), :$!c, prev => ( |@.prev, ($!r, $!c) ), steps => ( |@.steps,'d' ), :$heat-loss;
   }
   method go-up {
     return Nil unless $!r > 0;
-    return Nil if @.steps.tail(3).join eq 'uuu';
-    return Nil if @.steps.tail(1).join eq 'd';
+    return Nil unless self.okay-to-go('u');
     my $heat-loss = $!heat-loss + @grid[$!r - 1][$!c];
     return Path.new: :r( $!r - 1), :$!c, prev => ( |@.prev, ($!r, $!c) ), steps => ( |@.steps,'u' ), :$heat-loss;
   }
@@ -97,6 +99,7 @@ my $min-heatloss = Inf;
 
 sub fill {
  my $p = Path.new( r => 0, c => 0 );
+ say $p.go-right.go-left;
  my @perimeter = [ $p, ];
  my $round = 0;
  loop {
@@ -127,7 +130,7 @@ sub fill {
    for @ended -> $e {
     say '----> heatloss: ' ~ $e.heat-loss;
     #say '----> path : ' ~ $e.prev.raku;
-    #$e.dump;
+    $e.dump;
     #say $e;
    }
  }
