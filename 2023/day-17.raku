@@ -1,9 +1,7 @@
 #!/usr/bin/env raku
 
-use lib $*HOME.child('raku-elapsed/lib');
 unit sub MAIN($file = 'input', :$max-found = 840);
 
-use Elapsed;
 use Repl::Tools;
 use Terminal::ANSI::OO 't';
 
