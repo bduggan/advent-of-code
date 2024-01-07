@@ -1,6 +1,6 @@
 #!/usr/bin/env raku
 
-unit sub MAIN($file = 'input', :$max-found = 840);
+unit sub MAIN($file = 'input', :$max-found = 1018);  # 840 for part 1, 1017 for part 2
 
 use Repl::Tools;
 use Terminal::ANSI::OO 't';
@@ -55,6 +55,16 @@ class Path {
     return $!r == rows - 1 && $!c == cols - 1;
   }
   method uniq-key {
+    my $last := @!steps.tail(1);
+    my $key = $last;
+    for @!steps.tail(10).reverse {
+      once next;
+      last unless $_ eq $last;
+      $key ~= $last;
+    }
+    $key ~ "|$!r,$!c";
+  }
+  method uk-part1() {
     my $last := @!steps.tail;
     my $key = $last;
     for @!steps.tail(3).reverse {
@@ -73,7 +83,7 @@ class Path {
     return True;
   }
   method sort-key {
-    return self.heat-loss;
+    return [ self.heat-loss, self.distance ];
     return [ self.distance, self.heat-loss ];
     #(.heat-loss / 200) + 10 * (.distance / (rows * cols) ) }
   }
@@ -82,11 +92,11 @@ class Path {
     for @grid.kv -> $r, @row {
       for @row.kv -> $c, $col {
         if ($r == self.r && $c == self.c) {
-          print t.color('#ddddff') ~ t.reverse-video ~ @grid[$r][$c] ~ t.text-reset;
+          print t.color('#99ffff') ~ t.reverse-video ~ @grid[$r][$c] ~ t.text-reset;
         } elsif %path{ "$r,$c" } {
-          print t.reverse-video ~ @grid[$r][$c] ~ t.text-reset;
+          print t.color('#ffff99') ~ t.reverse-video ~ @grid[$r][$c] ~ t.text-reset;
         } else {
-          print @grid[$r][$c];
+          print t.color('#666666') ~ @grid[$r][$c];
         }
       }
       say '';
@@ -146,7 +156,7 @@ fill;
 say "min heatloss is " ~ $min-heatloss;
 with $winner {
   say "winner:";
-  .dump;
+  #.dump;
   say "heatloss is : " ~ .heat-loss;
 }
 
