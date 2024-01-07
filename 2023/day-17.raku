@@ -12,6 +12,7 @@ my \rows = @grid.elems;
 
 my %heatloss;
 my %paths-to;  # to row/col
+my %opposite = :l<r>, :r<l>, :u<d>, :d<u>;
 
 class Path {
   has $.r;
@@ -20,9 +21,10 @@ class Path {
   has @.prev; # (r,c), (r,c), ...
   has @.steps = ('');
   method okay-to-go($dir) {
+    return False if 1 < @.steps < 5 && @.steps.tail ne $dir;
+    return False if @.steps.tail(1).join eq %opposite{ $dir };
     return False if @.steps.tail(10).join eq $dir x 10;
-    return True if @.steps.tail(3 | 2 | 1).unique eq $dir;
-    return True if @.steps.tail(4).unique ne $dir;
+    return False if @.steps.tail(1) ne $dir && not @.steps < 4 || @.steps[*-4 .. *-1].unique.elems == 1; 
     return True;
   }
   method go-right {
@@ -94,17 +96,21 @@ class Path {
 
 my %seen;
 my $min-heatloss = Inf;
+my $winner;
 
 sub fill {
  my $p = Path.new( r => 0, c => 0 );
- say $p.go-right.go-left;
+ fail "no" if $p.go-right.go-left;
  my @perimeter = [ $p, ];
  my $round = 0;
  loop {
+   #say t.clear-screen;
    say "round { $round++} : perimeter: " ~ @perimeter.elems;
    say "min distance: " ~ (min @perimeter.map: *.distance) ~ " and min heat loss is " ~ $min-heatloss.raku;
    my @n; # next
    for @perimeter -> $p {
+     #$p.dump;
+     #sleep 1;
      with $p.go-right { @n.push($^x) unless %seen{ $x.uniq-key } && %seen{ $x.uniq-key } < $p.heat-loss }
      with $p.go-left  { @n.push($^x) unless %seen{ $x.uniq-key } && %seen{ $x.uniq-key } < $p.heat-loss }
      with $p.go-down  { @n.push($^x) unless %seen{ $x.uniq-key } && %seen{ $x.uniq-key } < $p.heat-loss }
@@ -124,11 +130,12 @@ sub fill {
    my $new = @ended.map(+*.heat-loss).min;
    if $new < $min-heatloss {
      $min-heatloss = $new;
+     $winner = @ended.first(*.heat-loss == $min-heatloss);
    }
    for @ended -> $e {
     say '----> heatloss: ' ~ $e.heat-loss;
     #say '----> path : ' ~ $e.prev.raku;
-    $e.dump;
+    #$e.dump;
     #say $e;
    }
  }
@@ -137,3 +144,9 @@ sub fill {
 fill;
 
 say "min heatloss is " ~ $min-heatloss;
+with $winner {
+  say "winner:";
+  .dump;
+  say "heatloss is : " ~ .heat-loss;
+}
+
