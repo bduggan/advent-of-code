@@ -1,5 +1,7 @@
 Brian's [advent of code](https://adventofcode.com/) solutions in Raku
 
+* [2024](https://git.sr.ht/~bduggan/advent-of-code/tree/master/item/2024)
+
 * [2023](https://git.sr.ht/~bduggan/advent-of-code/tree/master/item/2023)
 
 * [2022](https://git.sr.ht/~bduggan/advent-of-code/tree/master/item/2022)
