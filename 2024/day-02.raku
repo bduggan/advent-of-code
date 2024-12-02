@@ -2,37 +2,24 @@
 
 my @rows = lines.map: *.words.cache;
 
-sub part1 {
-  my $safe = 0;
-  for @rows -> $r {
-    next unless ([<] @$r) || ([>] @$r);
-    my $max-diff = max $r.rotor(2 => -1).map: { abs([-] @$_) };
-    next if $max-diff > 3;
-    my $min-diff = min $r.rotor(2 => -1).map: { abs([-] @$_) };
-    next if $min-diff < 1;
-    $safe++;
+sub part1(@rows) {
+  +@rows.grep: -> @r {
+     ([<] @r) || ([>] @r) and
+     1 <= all(@r.rotor(2 => -1).map: { abs([-] @$_) }) <= 3;
   }
-  say $safe;
 }
 
-sub part2 {
-  my $safe = 0;
-  for @rows -> $p {
-    for 0..^$p.elems -> $e {
-      my $r = flat $p[ (0 .. $e - 1), ($e + 1 .. *) ];
-      next unless ([<] @$r) || ([>] @$r);
-      my $max-diff = max $r.rotor(2 => -1).map: { abs([-] @$_) };
-      next if $max-diff > 3;
-      my $min-diff = min $r.rotor(2 => -1).map: { abs([-] @$_) };
-      next if $min-diff < 1;
-      $safe++;
-      last;
+sub part2(@rows) {
+  +@rows.grep: -> @p {
+    so (0..^@p).grep: {
+      part1(
+        @( @p[ 0 .. $_ - 1, $_ + 1 .. * ].flat, )
+      );
     }
   }
-  say $safe;
 }
 
-part1;
-part2;
+say part1(@rows);
+say part2(@rows);
 
 
