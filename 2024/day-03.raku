@@ -13,13 +13,13 @@ sub part-one {
 sub part-two {
   my @muls = $in.comb( / <do-or-dont> | <mul> /);
   my $ok = True;
-  my $sum = 0;
-  for @muls {
-    if / 'don\'t' / { $ok = False; next; }
-    if / 'do' / { $ok = True; next; }
-    $sum += [*] .comb( /\d+/ ) if $ok;
+  say sum @muls.map: {
+    when / <do-or-dont> / {
+      $ok = not so / 'don\'t' /;
+      Empty;
+    }
+    [*] .comb( /\d+/ ) if $ok;
   }
-  say $sum;
 }
 
 part-one;
