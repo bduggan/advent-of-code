@@ -1,36 +1,26 @@
 #!/usr/bin/env raku
 
-my $in = slurp '/tmp/real';
-my regex doordont { 'do()' | 'don\'t' }
+my $in = slurp $*IN;
 
-my @muls = $in.comb(
-/
-| <doordont>
-| [ mul '(' \d+ ',' \d+ ')' ]
-/
-);
+my regex do-or-dont { 'do()' | 'don\'t()' }
+my regex mul { mul '(' \d+ ',' \d+ ')' }
 
-say @muls;
-my $ok = True;
-
-my $sum = 0;
-for @muls {
-  say "we have $_";
-  if $_ ~~ / 'don\'t' / {
-   say 'DONT';
-   $ok = False;
-   next;
-  }
-  if $_ ~~ / 'do' / {
-   say 'DO';
-   $ok = True;
-  }
-  my @num = $_.comb( /\d+/ );
-  say "num is " ~ @num;
-  next unless $ok;
-  next unless @num == 2;
-  $sum += [*] @num
+sub part-one {
+  my @muls = $in.comb( / <mul> /);
+  say sum @muls.map: { [*] .comb( /\d+/ ) }
 }
 
-say $sum;
+sub part-two {
+  my @muls = $in.comb( / <do-or-dont> | <mul> /);
+  my $ok = True;
+  my $sum = 0;
+  for @muls {
+    if / 'don\'t' / { $ok = False; next; }
+    if / 'do' / { $ok = True; next; }
+    $sum += [*] .comb( /\d+/ ) if $ok;
+  }
+  say $sum;
+}
 
+part-one;
+part-two;
