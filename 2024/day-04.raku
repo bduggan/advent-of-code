@@ -4,10 +4,6 @@ my @lines = lines;
 my @rows = @lines.map: *.comb.list;
 my @cols = ([Z] @rows)».join;
 
-sub count(@lines) {
-  sum @lines.map: { ( m:g/XMAS/ ).elems };
-}
-
 sub at(\i,\j) {
   try return @rows[i][j] // '';
   return '';
@@ -26,11 +22,12 @@ sub part-one {
     for row.comb.kv -> \j, \c {
       next unless c eq 'X';
       $d += x-mas(i,j, +1, +1 ) + x-mas(i,j, -1, +1 )
-          + x-mas(i,j, -1, -1 ) + x-mas(i,j, +1, -1 );
+          + x-mas(i,j, -1, -1 ) + x-mas(i,j, +1, -1 )
+          + x-mas(i,j,  0, +1 ) + x-mas(i,j, +1,  0 )
+          + x-mas(i,j,  0, -1 ) + x-mas(i,j, -1,  0 )
     }
   }
-  say count(@lines) + count(@lines».flip)
-    + count(@cols) + count(@cols».flip) + $d;
+  say $d;
 }
 
 sub part-two {
