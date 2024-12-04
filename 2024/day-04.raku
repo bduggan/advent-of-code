@@ -5,7 +5,7 @@ my @rows = @lines.map: *.comb.list;
 my @cols = ([Z] @rows)».join;
 
 sub count(@lines) {
-  sum @lines.map: { ( m:exhaustive/XMAS/ ).elems };
+  sum @lines.map: { ( m:g/XMAS/ ).elems };
 }
 
 sub at(\i,\j) {
@@ -13,7 +13,8 @@ sub at(\i,\j) {
   return '';
 }
 
-sub at-dir(\i,\j,\dx,\dy) {
+sub x-mas(\i,\j,\dx,\dy) {
+  'MAS' eq
     at( i + dx,     j + dy)
   ~ at( i + dx * 2, j + dy * 2)
   ~ at( i + dx * 3, j + dy * 3);
@@ -24,10 +25,8 @@ sub part-one {
   for @lines.kv -> \i, \row {
     for row.comb.kv -> \j, \c {
       next unless c eq 'X';
-      $d++ if at-dir(i,j, -1, -1 ) eq 'MAS';
-      $d++ if at-dir(i,j, -1, +1 ) eq 'MAS';
-      $d++ if at-dir(i,j,  1, -1 ) eq 'MAS';
-      $d++ if at-dir(i,j,  1,  1 ) eq 'MAS';
+      $d += x-mas(i,j, +1, +1 ) + x-mas(i,j, -1, +1 )
+          + x-mas(i,j, -1, -1 ) + x-mas(i,j, +1, -1 );
     }
   }
   say count(@lines) + count(@lines».flip)
