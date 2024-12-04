@@ -10,10 +10,9 @@ sub at(\i,\j) {
 }
 
 sub x-mas(\i,\j,\dx,\dy) {
-  'MAS' eq
-    at( i + dx,     j + dy)
-  ~ at( i + dx * 2, j + dy * 2)
-  ~ at( i + dx * 3, j + dy * 3);
+  'MAS' eq at( i + dx,     j + dy)
+         ~ at( i + dx * 2, j + dy * 2)
+         ~ at( i + dx * 3, j + dy * 3);
 }
 
 sub part-one {
