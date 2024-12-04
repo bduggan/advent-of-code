@@ -13,15 +13,19 @@ sub at(\i,\j) {
   return '';
 }
 
+sub at-dir(\i,\j,\dx,\dy) {
+  return at(i + dx, j + dy) ~ at( i + dx * 2, j + dy * 2) ~ at( i + dx * 3, j + dy * 3);
+}
+
 sub part-one {
   my $d = 0;
   for @lines.kv -> \i, \row {
     for row.comb.kv -> \j, \c {
       next unless c eq 'X';
-      $d++ if at(i-1,j-1) ~ at(i-2,j-2) ~ at(i-3,j-3) eq 'MAS';
-      $d++ if at(i+1,j+1) ~ at(i+2,j+2) ~ at(i+3,j+3) eq 'MAS';
-      $d++ if at(i-1,j+1) ~ at(i-2,j+2) ~ at(i-3,j+3) eq 'MAS';
-      $d++ if at(i+1,j-1) ~ at(i+2,j-2) ~ at(i+3,j-3) eq 'MAS';
+      $d++ if at-dir(i,j, -1, -1 ) eq 'MAS';
+      $d++ if at-dir(i,j, -1, +1 ) eq 'MAS';
+      $d++ if at-dir(i,j,  1, -1 ) eq 'MAS';
+      $d++ if at-dir(i,j,  1,  1 ) eq 'MAS';
     }
   }
   say count(@lines) + count(@lines».flip)
