@@ -14,18 +14,18 @@ sub at(\i,\j) {
 }
 
 sub part-one {
-  my $diags = 0;
-  for @lines.kv -> \i, $row {
-    for $row.comb.kv -> \j, $c {
-      next unless at(i,j) eq 'X';
-      $diags++ if at(i-1,j-1) eq 'M' and at(i-2,j-2) eq 'A' and at(i-3,j-3) eq 'S';
-      $diags++ if at(i+1,j+1) eq 'M' and at(i+2,j+2) eq 'A' and at(i+3,j+3) eq 'S';
-      $diags++ if at(i-1,j+1) eq 'M' and at(i-2,j+2) eq 'A' and at(i-3,j+3) eq 'S';
-      $diags++ if at(i+1,j-1) eq 'M' and at(i+2,j-2) eq 'A' and at(i+3,j-3) eq 'S';
+  my $d = 0;
+  for @lines.kv -> \i, \row {
+    for row.comb.kv -> \j, \c {
+      next unless c eq 'X';
+      $d++ if at(i-1,j-1) eq 'M' && at(i-2,j-2) eq 'A' && at(i-3,j-3) eq 'S';
+      $d++ if at(i+1,j+1) eq 'M' && at(i+2,j+2) eq 'A' && at(i+3,j+3) eq 'S';
+      $d++ if at(i-1,j+1) eq 'M' && at(i-2,j+2) eq 'A' && at(i-3,j+3) eq 'S';
+      $d++ if at(i+1,j-1) eq 'M' && at(i+2,j-2) eq 'A' && at(i+3,j-3) eq 'S';
     }
   }
   say count(@lines) + count(@lines».flip)
-    + count(@cols) + count(@cols».flip) + $diags;
+    + count(@cols) + count(@cols».flip) + $d;
 }
 
 sub part-two {
