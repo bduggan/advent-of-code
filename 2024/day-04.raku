@@ -21,10 +21,7 @@ sub part-one {
   for @lines.kv -> \i, \row {
     for row.comb.kv -> \j, \c {
       next unless c eq 'X';
-      $d += x-mas(i,j, +1, +1 ) + x-mas(i,j, -1, +1 )
-          + x-mas(i,j, -1, -1 ) + x-mas(i,j, +1, -1 )
-          + x-mas(i,j,  0, +1 ) + x-mas(i,j, +1,  0 )
-          + x-mas(i,j,  0, -1 ) + x-mas(i,j, -1,  0 )
+      $d += x-mas(i, j, |@$_ ) for <-1 0 1> X, <-1 0 1>;
     }
   }
   say $d;
