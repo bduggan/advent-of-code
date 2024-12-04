@@ -18,10 +18,10 @@ sub part-one {
   for @lines.kv -> \i, \row {
     for row.comb.kv -> \j, \c {
       next unless c eq 'X';
-      $d++ if at(i-1,j-1) eq 'M' && at(i-2,j-2) eq 'A' && at(i-3,j-3) eq 'S';
-      $d++ if at(i+1,j+1) eq 'M' && at(i+2,j+2) eq 'A' && at(i+3,j+3) eq 'S';
-      $d++ if at(i-1,j+1) eq 'M' && at(i-2,j+2) eq 'A' && at(i-3,j+3) eq 'S';
-      $d++ if at(i+1,j-1) eq 'M' && at(i+2,j-2) eq 'A' && at(i+3,j-3) eq 'S';
+      $d++ if at(i-1,j-1) ~ at(i-2,j-2) ~ at(i-3,j-3) eq 'MAS';
+      $d++ if at(i+1,j+1) ~ at(i+2,j+2) ~ at(i+3,j+3) eq 'MAS';
+      $d++ if at(i-1,j+1) ~ at(i-2,j+2) ~ at(i-3,j+3) eq 'MAS';
+      $d++ if at(i+1,j-1) ~ at(i+2,j-2) ~ at(i+3,j-3) eq 'MAS';
     }
   }
   say count(@lines) + count(@lines».flip)
