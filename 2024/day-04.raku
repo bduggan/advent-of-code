@@ -9,7 +9,7 @@ sub count(@lines) {
 }
 
 sub at(\i,\j) {
-	try return @rows[i][j] // '';
+  try return @rows[i][j] // '';
   return '';
 }
 
