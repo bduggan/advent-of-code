@@ -13,36 +13,42 @@ sub count(@lines) {
 }
 
 sub at(\i,\j) {
-  return '' if i < 0 || j < 0;
-  return '' if i > @rows;
-  return '' if j >= @rows[0];
-  #die "out of range: { i } { j} " unless defined(@rows[i][j]);
-  return @rows[i][j] // '';
+	try return @rows[i][j] // '';
+  return '';
 }
-my $diags = 0;
 
-for @lines.kv -> \i, $row {
-  for $row.comb.kv -> \j, $c {
-    next unless at(i,j) eq 'A';
-    my @vals = at(i-1,j-1), at(i-1,j+1), at(i+1,j+1), at(i+1,j-1);
-    #                1           2            3           4
-    #   1  2 
-    #    A
-    #   4  3
-      
-    $diags++ if @vals.join eq any(  'MMSS', 'SSMM', 'MSSM','SMMS' );
+sub part-one {
+  my $diags = 0;
+
+  for @lines.kv -> \i, $row {
+    for $row.comb.kv -> \j, $c {
+      next unless at(i,j) eq 'X';
+      $diags++ if at(i-1,j-1) eq 'M' and at(i-2,j-2) eq 'A' and at(i-3,j-3) eq 'S';
+      $diags++ if at(i+1,j+1) eq 'M' and at(i+2,j+2) eq 'A' and at(i+3,j+3) eq 'S';
+      $diags++ if at(i-1,j+1) eq 'M' and at(i-2,j+2) eq 'A' and at(i-3,j+3) eq 'S';
+      $diags++ if at(i+1,j-1) eq 'M' and at(i+2,j-2) eq 'A' and at(i+3,j-3) eq 'S';
+    }
   }
+
+  say count(@lines) + count(@lines>>.flip) +
+   count(@cols) + count(@cols>>.flip)
+   + $diags;
 }
 
-say "diags: $diags";
+sub part-two {
+  my $diags = 0;
+  for @lines.kv -> \i, $row {
+    for $row.comb.kv -> \j, $c {
+      next unless at(i,j) eq 'A';
+      my @vals = at(i-1,j-1), at(i-1,j+1), at(i+1,j+1), at(i+1,j-1);
+      $diags++ if @vals.join eq any(  'MMSS', 'SSMM', 'MSSM','SMMS' );
+    }
+  }
+  say "diags: $diags";
+}
 
-exit;
+part-one;
+part-two
 
-say
- count(@lines) +
- count(@lines>>.flip) +
- count(@cols) +
- count(@cols>>.flip)
- + $diags;
- ;
+;
 
