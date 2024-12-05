@@ -1,6 +1,6 @@
 #!/usr/bin/env raku
 
-my ($rules, $lists) = 'in/real'.IO.slurp.split("\n\n");
+my ($rules, $lists) = $*ARGFILES.slurp.split("\n\n");
 
 my %must-come-before;
 
