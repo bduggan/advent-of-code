@@ -17,23 +17,29 @@ sub eval(@nums is copy, @ops is copy, $target) {
   $total;
 }
 
-#my @OPS = '*', '+';
-my @OPS = '*', '+', '||';
-my @ok;
-for @in {
-  say "line " ~ ++$ ~ " of " ~ @in.elems;
-  my ($target,$nums) = .split(':');
-  my @nums = $nums.words.map: +*;
-  my @candidates = [X] @( @OPS xx (@nums - 1) );
-  if @nums == 2 {
-    @candidates = @OPS;
+sub do-it(@OPS) {
+  my @ok;
+  my atomicint $line = 0;
+  my atomicint $sum = 0;
+  race for @in.race {
+    print "\r line " ~ $line ~ " of " ~ @in.elems ~ ' thread ' ~ $*THREAD.id;
+    $line⚛++;
+    my ($target,$nums) = .split(':');
+    my @nums = $nums.words.map: +*;
+    my @candidates = [X] @( @OPS xx (@nums - 1) );
+    if @nums == 2 {
+      @candidates = @OPS;
+    }
+    for @candidates -> $ops {
+      next unless eval(@nums,@$ops,$target) == $target;
+      $sum ⚛+= $target;
+      last;
+    }
   }
-  for @candidates -> $ops {
-    next unless eval(@nums,@$ops,$target) == $target;
-    push @ok, $target;
-    last;
-  }
+  put "";
+  say $sum;
 }
-#say @ok.raku;
-say [+] @ok;
 
+do-it(<* +>); # part 1
+do-it(<* + ||>); # part 2
+ 
