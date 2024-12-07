@@ -19,10 +19,8 @@ sub eval(@nums is copy, @ops is copy where *.elems == @nums.elems - 1, $target) 
 sub do-it(@operators) {
   my atomicint $sum = 0;
   race for @in.race {
-    my ($target,$nums) = .split(':');
-    my @nums = $nums.words.map: +*;
-    my @candidates = [X] @( @operators xx (@nums - 1), );
-    for @candidates -> $ops {
+    my ($target,@nums) = .split(/ ':' | ' ' /);
+    for [X] @( @operators xx (@nums - 1), ) -> $ops {
       next unless eval(@nums,@$ops,$target) == $target;
       $sum ⚛+= $target;
       last;
