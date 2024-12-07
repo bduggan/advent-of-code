@@ -5,6 +5,16 @@ one level of parallelism:
   145397611075341
   raku day-07.raku ./in.aoc  388.63s user 7.92s system 592% cpu 1:06.96 total
 
-Two levels with a lock around the hash operation:
-  slower -- not just because of locking but because pruning the solution space is worse
+Two levels with locks around hash ops :
+
+  $ time raku day-07.raku ./in.aoc
+  1620690235709
+  145397611075341
+  raku day-07.raku ./in.aoc  506.80s user 45.64s system 684% cpu 1:20.65 total
+
+shuffling:
+
+  1620690235709
+  145397611075341
+  raku day-07.raku in.aoc  590.15s user 48.71s system 721% cpu 1:28.59 total
 
