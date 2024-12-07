@@ -25,3 +25,9 @@ parallelism only on the inner ops but with locks
   145397611075341
   raku alt/day-07-locks.raku in.aoc  315.35s user 8.52s system 482% cpu 1:07.19 total
 
+atomic ops instead of locks with inner parallelism:
+  % time raku alt/day-07-atomic.raku in.aoc
+  1620690235709
+  145397611075341
+  raku alt/day-07-atomic.raku in.aoc  495.27s user 29.87s system 728% cpu 1:12.10 total
+
