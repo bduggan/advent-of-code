@@ -2,8 +2,7 @@
 
 my @in = lines;
 
-sub eval(@nums is copy, @ops is copy, $target) {
-  die "incorrect number of ops { @nums.raku } vs { @ops.raku }" unless @ops == @nums - 1;
+sub eval(@nums is copy, @ops is copy where *.elems == @nums.elems - 1, $target) {
   my $total = @nums.shift;
   while @nums {
     given @ops.shift {
@@ -17,23 +16,18 @@ sub eval(@nums is copy, @ops is copy, $target) {
   $total;
 }
 
-sub do-it(@OPS) {
-  my @ok;
-  my atomicint $line = 0;
+sub do-it(@operators) {
   my atomicint $sum = 0;
   race for @in.race {
-    print "\r line " ~ $line ~ " of " ~ @in.elems ~ ' thread ' ~ $*THREAD.id;
-    $line⚛++;
     my ($target,$nums) = .split(':');
     my @nums = $nums.words.map: +*;
-    my @candidates = [X] @( @OPS xx (@nums - 1), );
+    my @candidates = [X] @( @operators xx (@nums - 1), );
     for @candidates -> $ops {
       next unless eval(@nums,@$ops,$target) == $target;
       $sum ⚛+= $target;
       last;
     }
   }
-  put "";
   say $sum;
 }
 
