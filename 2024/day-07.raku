@@ -18,13 +18,11 @@ sub eval(@nums is copy, @ops is copy where *.elems == @nums.elems - 1, $target) 
 
 sub do-it(@operators) {
   my atomicint $sum = 0;
-  my %done;
-  my Lock $l .= new;
   race for @in.race {
-    my ($target,@nums) = .split(/ ':' | ' ' /);
-    race for @( [X] @( @operators xx (@nums - 1), ) ).race -> @ops {
+    my ($target,$nums) = .split(':');
+    my @nums = $nums.words.map: +*;
+    for @( [X] @( @operators xx (@nums - 1), ) ) -> @ops {
       next unless eval(@nums,@ops,$target);
-      $l.protect: { next if %done{ $target }++; }
       $sum ⚛+= $target;
       last;
     }
@@ -32,6 +30,6 @@ sub do-it(@operators) {
   say $sum;
 }
 
-do-it(<* +>);    # part 1
+do-it(<* +>); # part 1
 do-it(<* + ||>); # part 2
  
