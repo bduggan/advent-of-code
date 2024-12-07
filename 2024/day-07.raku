@@ -11,9 +11,9 @@ sub eval(@nums is copy, @ops is copy where *.elems == @nums.elems - 1, $target) 
       when '||' { $total ~= @nums.shift; }
       default { fail "unknown operator: $_" }
     }
-    return -1 if $total > $target;
+    return False if $total > $target;
   }
-  $total;
+  $total == $target
 }
 
 sub do-it(@operators) {
@@ -21,7 +21,7 @@ sub do-it(@operators) {
   race for @in.race {
     my ($target,@nums) = .split(/ ':' | ' ' /);
     for [X] @( @operators xx (@nums - 1), ) -> $ops {
-      next unless eval(@nums,@$ops,$target) == $target;
+      next unless eval(@nums,@$ops,$target);
       $sum ⚛+= $target;
       last;
     }
@@ -29,6 +29,6 @@ sub do-it(@operators) {
   say $sum;
 }
 
-do-it(<* +>); # part 1
+do-it(<* +>);    # part 1
 do-it(<* + ||>); # part 2
  
