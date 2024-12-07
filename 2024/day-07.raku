@@ -4,12 +4,11 @@ my @in = lines;
 
 sub eval(@nums is copy, @ops is copy where *.elems == @nums.elems - 1, $target) {
   my $total = @nums.shift;
-  while @nums {
+  while @nums.shift -> \n {
     given @ops.shift {
-      when '+' { $total += @nums.shift; }
-      when '*' { $total *= @nums.shift; }
-      when '||' { $total ~= @nums.shift; }
-      default { fail "unknown operator: $_" }
+      when '+'  { $total += n; }
+      when '*'  { $total *= n; }
+      when '||' { $total ~= n; }
     }
     return False if $total > $target;
   }
@@ -30,6 +29,6 @@ sub do-it(@operators) {
   say $sum;
 }
 
-do-it(<* +>); # part 1
+do-it(<* +>);    # part 1
 do-it(<* + ||>); # part 2
  
