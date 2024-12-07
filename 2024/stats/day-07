@@ -18,3 +18,10 @@ shuffling:
   145397611075341
   raku day-07.raku in.aoc  590.15s user 48.71s system 721% cpu 1:28.59 total
 
+parallelism only on the inner ops but with locks
+
+  $ time raku alt/day-07-locks.raku in.aoc
+  1620690235709
+  145397611075341
+  raku alt/day-07-locks.raku in.aoc  315.35s user 8.52s system 482% cpu 1:07.19 total
+

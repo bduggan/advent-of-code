@@ -20,10 +20,10 @@ sub do-it(@operators) {
   my atomicint $sum = 0;
   my %found;
   my $lock = Lock.new;
-  race for @in.race {
+  for @in {
     my ($target,$nums) = .split(':');
     my @nums = $nums.words.map: +*;
-    race for @( [X] @( @operators xx (@nums - 1), ) ).pick(*).race -> @ops {
+    race for @( [X] @( @operators xx (@nums - 1), ) ).race -> @ops {
       $lock.protect: {
         last if %found{$target};
       }
