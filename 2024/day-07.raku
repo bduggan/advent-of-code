@@ -26,10 +26,7 @@ sub do-it(@OPS) {
     $line⚛++;
     my ($target,$nums) = .split(':');
     my @nums = $nums.words.map: +*;
-    my @candidates = [X] @( @OPS xx (@nums - 1) );
-    if @nums == 2 {
-      @candidates = @OPS;
-    }
+    my @candidates = [X] @( @OPS xx (@nums - 1), );
     for @candidates -> $ops {
       next unless eval(@nums,@$ops,$target) == $target;
       $sum ⚛+= $target;
