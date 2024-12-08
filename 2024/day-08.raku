@@ -19,9 +19,9 @@ class Grid {
     my $i = 0;
     for @.antinodes.kv -> $r, $row {
       for $row.kv -> $c, $cell {
-        next unless $cell.defined;
-        say "antinode at $r, $c";
-        $i++;
+        $i++ if ( $cell.defined || @.rows[$r][$c] ne '.' );
+        #say "antinode at $r, $c";
+        #$i++;
       }
     }
     return $i;
@@ -44,12 +44,12 @@ for @freqs -> $f {
   say $f ~ " are at: " ~ @all.raku;
   my @others;
   for @all.combinations(2) -> $c {
-    #og.set-antinode($c[0].list >>->> $diff, $f);
-    og.set-antinode($c[1] >>->> ($c[0] >>->> $c[1]) , $f);
-    og.set-antinode($c[0] >>->> ($c[1] >>->> $c[0]) , $f);
-    #og.set-antinode($c[0] >>+>> ($c[1] >>->> $c[0]) , $f);
-    #og.set-antinode($c[1].list >>->> $diff, $f);
-    #og.set-antinode($c[1].list >>+>> $diff, $f);
+    for 1..100 {
+      og.set-antinode($c[1] >>->> ( ($c[0] >>->> $c[1]) >>*>> $_) , $f);
+      og.set-antinode($c[0] >>->> ( ($c[1] >>->> $c[0]) >>*>> $_), $f);
+      og.set-antinode($c[0] >>+>> ( ($c[1] >>->> $c[0]) >>*>> $_), $f);
+      og.set-antinode($c[1] >>+>> ( ($c[0] >>->> $c[1]) >>*>> $_) , $f);
+    }
   }
 }
 
