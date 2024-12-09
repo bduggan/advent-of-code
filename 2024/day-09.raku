@@ -1,6 +1,6 @@
 #!/usr/bin/env raku
 
-my $in = '12345';
+my $in = '2333133121414131402';
 
 my @in = $in.comb.list;
 my @free-spaces;
@@ -52,4 +52,15 @@ loop {
 }
 
 say @disk.join;
+
+my $sum;
+my $i = 0;
+for @disk -> $d {
+  last if $d eq '.';
+  $sum += $d * $i;
+  $i++;
+}
+
+say $sum;
+
 
