@@ -1,9 +1,7 @@
 #!/usr/bin/env raku
 
-# part two
-
-my $in = $*IN.slurp;
-#my $in = '2333133121414131402';
+#my $in = $*IN.slurp;
+my $in = '2333133121414131402';
 
 my @in = $in.comb.list;
 my @free-spaces;
@@ -24,6 +22,8 @@ loop {
   $id++;
 }
 
+#say @disk.join;
+
 my $total-free = sum @free-spaces;
 my $total-blocks = sum @block-counts;
 my @id-counts = @block-counts;
@@ -31,25 +31,49 @@ my @id-counts = @block-counts;
 my $moving-block = $id - 1;
 
 sub recompute(@disk) {
-  my @counts = @disk.join.match(/ ( [\d+] | ['.'+] )+ /, :g)[0][0].map: *.chars;
-  @block-counts = @counts.pairup.map: *.key;
-  @free-spaces = @counts.pairup.map: *.value;
+  @block-counts = ();
+  @free-spaces = ();
+  my $current-block = 0;
+  my $current-free = 0;
+  for @disk {
+      if $_ ne '.' {
+        @block-counts[ $current-block ]++;
+        $current-free++ if @free-spaces[$current-free].defined;
+      } else {
+        @free-spaces[ $current-free ]++;
+        $current-block++ if @block-counts[$current-block].defined;
+      }
+  }
 }
 
 loop {
   last unless $moving-block > 0;
+
   my $from = @block-locations[ $moving-block ];
   my $to-move = @id-counts[ $moving-block ];
+
+  say "maybe moving block id $moving-block from $from";
+  #repl;
+  die "issue { @block-counts.raku }" unless (sum @block-counts) == $total-blocks;
+
+  # Find first free space
   my $space-index = @free-spaces.first( :k, { $_ >= $to-move } );
-  next without $space-index;
+
+  without $space-index {
+    #say "couldn't find space";
+    next;
+  }
 
   my $pos = @block-counts[0..($space-index)].sum + @free-spaces[0..($space-index-1)].sum;
+
   next if $pos > $from;
 
-  @disk[ $pos .. $pos + $to-move - 1 ] = $moving-block xx *;
+
+  @disk[ $pos .. $pos + $to-move - 1 ] = $moving-block xx *; #@disk[ $from - $to-move + 1 .. $from  ];
   @disk[ $from .. $from + $to-move - 1] = '.' xx *;
 
   recompute(@disk);
+
   NEXT { $moving-block--; }
 }
 
