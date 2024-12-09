@@ -1,6 +1,6 @@
 #!/usr/bin/env raku
 
-my $in = '2333133121414131402';
+my $in = $*IN.slurp;
 
 my @in = $in.comb.list;
 my @free-spaces;
@@ -18,7 +18,7 @@ loop {
   $id++;
 }
 
-say @disk.join;
+#say @disk.join;
 
 my $total-free = sum @free-spaces;
 my $total-blocks = sum @block-counts;
@@ -39,7 +39,7 @@ loop {
 
   @disk[ $pos .. $pos + $to-move - 1 ] = @disk[ $from - $to-move + 1 .. $from  ];
   @disk[ $from - $to-move + 1 .. $from ] = '.' xx *;
-  say "after: " ~ @disk.join;
+  #say "after: " ~ @disk.join;
   # move $to-move from the end of @disk to position $pos;
   @block-counts[* - 1] -= $to-move;
   @block-counts[0] += $to-move;
@@ -48,10 +48,12 @@ loop {
   @block-counts.pop if @block-counts.tail == 0;
   @free-spaces.shift if @free-spaces.head == 0;
 
-  last if $total-blocks == @disk.first: :k, { $_ eq '.' };
+  my $check = @disk.first: :k, { $_ eq '.' };
+  say "total blocks: $total-blocks vs $check";
+  last if $total-blocks == $check;
 }
 
-say @disk.join;
+#say @disk.join;
 
 my $sum;
 my $i = 0;
