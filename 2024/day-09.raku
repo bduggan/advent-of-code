@@ -1,5 +1,7 @@
 #!/usr/bin/env raku
 
+# part two
+
 my $in = $*IN.slurp;
 #my $in = '2333133121414131402';
 
@@ -22,86 +24,34 @@ loop {
   $id++;
 }
 
-#say @disk.join;
-
 my $total-free = sum @free-spaces;
 my $total-blocks = sum @block-counts;
 my @id-counts = @block-counts;
 
-use Repl::Tools;
-
 my $moving-block = $id - 1;
 
 sub recompute(@disk) {
-  @block-counts = ();
-  @free-spaces = ();
-  my $current-block = 0;
-  my $current-free = 0;
-  for @disk {
-      if $_ ne '.' {
-        @block-counts[ $current-block ]++;
-        $current-free++ if @free-spaces[$current-free].defined;
-      } else {
-        @free-spaces[ $current-free ]++;
-        $current-block++ if @block-counts[$current-block].defined;
-      }
-  }
-  #say @disk.join;
-  #say @block-counts.raku;
-  #say @free-spaces.raku;
-  #repl;
+  my @counts = @disk.join.match(/ ( [\d+] | ['.'+] )+ /, :g)[0][0].map: *.chars;
+  @block-counts = @counts.pairup.map: *.key;
+  @free-spaces = @counts.pairup.map: *.value;
 }
 
 loop {
   last unless $moving-block > 0;
-
   my $from = @block-locations[ $moving-block ];
   my $to-move = @id-counts[ $moving-block ];
-
-  say "maybe moving block id $moving-block from $from";
-  #repl;
-  die "issue { @block-counts.raku }" unless (sum @block-counts) == $total-blocks;
-
-  # Find first free space
   my $space-index = @free-spaces.first( :k, { $_ >= $to-move } );
-
-  without $space-index {
-    #say "couldn't find space";
-    next;
-  }
+  next without $space-index;
 
   my $pos = @block-counts[0..($space-index)].sum + @free-spaces[0..($space-index-1)].sum;
-
   next if $pos > $from;
 
-  #say "space $space, blocks $blocks, moving $to-move from $from to $pos";
-  #say "before: " ~ @disk.join;
-  #repl;
-
-  @disk[ $pos .. $pos + $to-move - 1 ] = $moving-block xx *; #@disk[ $from - $to-move + 1 .. $from  ];
+  @disk[ $pos .. $pos + $to-move - 1 ] = $moving-block xx *;
   @disk[ $from .. $from + $to-move - 1] = '.' xx *;
-  #say "after : " ~ @disk.join;
-  #repl;
-  # move $to-move from the end of @disk to position $pos;
 
   recompute(@disk);
-  #@block-counts[* - 1] -= $to-move;
-  #@block-counts[0] += $to-move;
-  #@free-spaces[$space-index] -= $to-move;
-  #@free-spaces[* - 1] += $to-move;
-
   NEXT { $moving-block--; }
 }
 
-#say @disk.join;
-
-my $sum;
-my $i = 0;
-for @disk -> $d {
-  next if $d eq '.';
-  $sum += $d * $i;
-  NEXT $i++;
-}
-
-say $sum;
+say sum @disk.map({ /\d/ ?? $_ !! 0   }) Z* 0..*;
 
