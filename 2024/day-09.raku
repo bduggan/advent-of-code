@@ -25,7 +25,6 @@ loop {
 my $total-free = sum @free-spaces;
 my $total-blocks = sum @block-counts;
 my @id-counts = @block-counts;
-
 my $moving-block = $id - 1;
 
 sub recompute {
@@ -42,8 +41,6 @@ sub recompute {
     }
   }
 }
-
-recompute;
 
 loop {
   last unless $moving-block > 0;
