@@ -49,12 +49,12 @@ loop {
 
   my $space-index = @free-spaces.first( :k, { $_ >= $to-move } );
   next without $space-index;
-
-  my $pos = @block-counts[0..($space-index)].sum + @free-spaces[0..($space-index-1)].sum;
+  my $pos = @block-counts[0..$space-index].sum
+          + @free-spaces[0..($space-index-1)].sum;
 
   next if $pos > $from;
-  @disk[ $pos .. $pos + $to-move - 1 ] = $moving-block xx *;
-  @disk[ $from .. $from + $to-move - 1] = '.' xx *;
+  @disk[ $pos .. $pos   + $to-move - 1 ] = $moving-block xx *;
+  @disk[ $from .. $from + $to-move - 1 ] = '.' xx *;
 
   recompute;
 
