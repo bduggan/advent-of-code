@@ -1,7 +1,7 @@
 #!/usr/bin/env raku
 
-my $in = $*IN.slurp;
-#my $in = '2333133121414131402';
+#my $in = $*IN.slurp;
+my $in = '2333133121414131402';
 
 my @in = $in.comb.list;
 my @free-spaces;
@@ -28,21 +28,22 @@ my @id-counts = @block-counts;
 
 my $moving-block = $id - 1;
 
-sub recompute(@disk) {
-  @block-counts = ();
-  @free-spaces = ();
-  my $current-block = 0;
-  my $current-free = 0;
+sub recompute {
+  @block-counts = 0;
+  @free-spaces = 0;
   for @disk {
-      if $_ ne '.' {
-        @block-counts[ $current-block ]++;
-        $current-free++ if @free-spaces[$current-free].defined;
-      } else {
-        @free-spaces[ $current-free ]++;
-        $current-block++ if @block-counts[$current-block].defined;
-      }
+    when /\./ {
+      @free-spaces.tail++;
+      @block-counts.append(0) if @block-counts.tail;
+    }
+    when /\d/ {
+      @block-counts.tail++;
+      @free-spaces.append(0) if @free-spaces.tail;
+    }
   }
 }
+
+recompute;
 
 loop {
   last unless $moving-block > 0;
@@ -60,7 +61,7 @@ loop {
   @disk[ $pos .. $pos + $to-move - 1 ] = $moving-block xx *;
   @disk[ $from .. $from + $to-move - 1] = '.' xx *;
 
-  recompute(@disk);
+  recompute;
 
   NEXT { $moving-block--; }
 }
