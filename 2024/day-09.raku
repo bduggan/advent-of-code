@@ -26,8 +26,7 @@ my @id-counts = @block-counts;
 my $moving-block = $id - 1;
 
 sub recompute {
-  @block-counts = 0;
-  @free-spaces = 0;
+  @block-counts = @free-spaces = 0;
   for @disk {
     when /\./ {
       @free-spaces.tail++;
