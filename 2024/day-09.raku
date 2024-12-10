@@ -22,8 +22,6 @@ loop {
   $id++;
 }
 
-my $total-free = sum @free-spaces;
-my $total-blocks = sum @block-counts;
 my @id-counts = @block-counts;
 my $moving-block = $id - 1;
 
