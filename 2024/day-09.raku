@@ -1,7 +1,7 @@
 #!/usr/bin/env raku
 
-#my $in = $*IN.slurp;
-my $in = '2333133121414131402';
+my $in = $*IN.slurp;
+#my $in = '2333133121414131402';
 
 my @in = $in.comb.list;
 my @free-spaces;
