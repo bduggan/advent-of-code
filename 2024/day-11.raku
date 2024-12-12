@@ -3,8 +3,6 @@
 my $in = '125 17';
 my $blinks = 25;
 
-#my $in = '0 4 4979 24 4356119 914 85734 698829';
-
 my @nums = $in.words;
 
 my %known;
