@@ -4,17 +4,23 @@ my $in = '125 17';
 
 my @nums = $in.words;
 
-sub count-rocks($value, $times) {
-  return 1 if $times == 0;
-  if $value == 0 {
-    return count-rocks(1, $times - 1) 
+sub get-rocks(@values, $blinks) {
+  #  say "getting { @values.raku } for blinks: $blinks";
+  return @values if $blinks == 0;
+  my @new = @values.flatmap: {
+    when $_ == 0 { get-rocks([1], $blinks - 1) }
+    when .chars %% 2 {
+      @(   |get-rocks( @( +.substr(0, (.chars div 2) )), $blinks - 1)
+        ,  |get-rocks( @( +.substr( (.chars div 2) )), $blinks - 1)
+      )
+    }
+    default {
+      get-rocks( @( $_ * 2024 ), $blinks - 1);
+    }
+    
   }
-  if $value.chars %% 2 {
-      return count-rocks( +$value.substr(0, ($value.chars div 2)), $times - 1)
-           + count-rocks( +$value.substr( ($value.chars div 2) ), $times - 1);
-  }
-  return count-rocks($value * 2024, $times - 1);
+  return @new;
 }
 
-my $times = 25;
-say count-rocks(125, $times) + count-rocks(17, $times);
+my $blinks = 25;
+say get-rocks([ 125 ], $blinks).elems + get-rocks([ 17 ], $blinks).elems;
