@@ -12,6 +12,25 @@ sub at(\r,\c) {
   '------';
 }
 
+sub partition-pairs(@pairs is copy) {
+  my @groups;
+  loop {
+    my $next = @pairs.shift or last;
+    my @overlaps = @pairs.grep: { .Set ∩ $next.Set > 0 }
+    my @group = ($next, |@overlaps );
+    @pairs = @pairs.grep: { .raku ∉ @overlaps.map: *.raku }
+    loop {
+      my @more-overlaps = @pairs.grep: -> $l { so @group.first( -> $g {$g.Set ∩ $l.Set}) };
+      last unless @more-overlaps;
+      @group.append: @more-overlaps;
+      @pairs = @pairs.grep: { .raku ∉ @more-overlaps.map: *.raku }
+      exit note 'nopt' if ++$ > 10;
+    }
+    @groups.push: @group;
+  }
+  return @groups;
+}
+
 my %interior;
 my %perimeters;
 
@@ -28,20 +47,16 @@ sub calculate-number-of-sides($cells, $perim) {
       my ( \r, \c, $dir) = $p.EVAL;
       (   ( $try[0] == r && $try[1] == ( (c + 1) | (c - 1) ) && $try[2] eq $dir )
        || ( $try[0] == ( ( r + 1 ) | (r - 1 ) ) && $try[1] == c && $try[2] eq $dir )
-     ) # && ! (%grouped{ $try.raku }:exists );
+     )
     }
     next unless $match;
-    say "found match $match matches $try";
+    #say "found match $match matches $try";
     %grouped{ $match } = 1;
-    @adjacent-pairs.push: [ $try, $match.EVAL ];
-    say "iteration " ~ ++$;
+    @adjacent-pairs.push: [ $try, $match.EVAL ].sort.list;
   }
-  say "orig: " ~ @p.raku;
-  for @adjacent-pairs.sort.unique {
-    say "pair : " ~ .raku;
-  }
-  say "adjacent-pairs " ~ @adjacent-pairs.unique.elems;
-  repl;
+  my @partitioned = partition-pairs(@adjacent-pairs.map(*.raku));
+  #repl;
+  return @partitioned.elems;
 }
 
 
@@ -74,7 +89,7 @@ for @all -> $label {
   my $perim = %perimeters{ $label }.keys.elems; 
   # calculate the number of straight lines that are used to make the shape that is the perimeter
   say "area: $area, segments: $perim";
-  calculate-number-of-sides($cells, %perimeters{ $label }.keys);
+  say "NUMBER OF SIDES : " ~ calculate-number-of-sides($cells, %perimeters{ $label }.keys);
   $sum += $area * $perim;
 }
 
