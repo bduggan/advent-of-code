@@ -3,7 +3,7 @@
 use Terminal::ANSI;
 use Terminal::ANSI::OO 't';
 
-unit sub MAIN($start, $delay);
+unit sub MAIN($start = 1, $delay = Nil);
 
 my $width = 101;
 my $height =  103;
@@ -21,11 +21,11 @@ sub position-after(@p, @v, $iterations) {
 
 sub part-one {
   my @new = @bots.map: { position-after( .<pos>, .<vel>, 100 ) };
-  my $q1 = @new.grep(-> (\x,\y) { x < $width div 2 && y < $height div 2 }).elems;
-  my $q2 = @new.grep(-> (\x,\y) { x > $width div 2 && y < $height div 2 }).elems;
-  my $q3 = @new.grep(-> (\x,\y) { x < $width div 2 && y > $height div 2 }).elems;
-  my $q4 = @new.grep(-> (\x,\y) { x > $width div 2 && y > $height div 2 }).elems;
-  say [*] ($q1,$q2,$q3,$q4);
+  my (\w, \h) = ( $width, $height) »div» 2;
+  say [*] @new.grep(-> (\x,\y) { x < w && y < h }),
+          @new.grep(-> (\x,\y) { x > w && y < h }),
+          @new.grep(-> (\x,\y) { x < w && y > h }),
+          @new.grep(-> (\x,\y) { x > w && y > h })
 }
 
 sub display(@new, $i, $label = "") {
@@ -36,8 +36,7 @@ sub display(@new, $i, $label = "") {
       for 0 ..^ $height -> \x {
         my $c = %counts{ [x,y].Str } // 0;
         if %counts{ [ x - 1, y ].Str } || %counts{ [ x + 1, y].Str }
-        || %counts{ [ x , y + 1 ].Str } || %counts{ [ x , y - 1].Str }
-        {
+        || %counts{ [ x , y + 1 ].Str } || %counts{ [ x , y - 1].Str } {
           print t.color(0,200,0);
         } else {
           print t.color(255,255,255);
@@ -63,4 +62,5 @@ sub part-two {
   }
 }
 
+part-one;
 part-two;
