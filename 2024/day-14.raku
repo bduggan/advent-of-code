@@ -15,7 +15,7 @@ for 'real'.IO.lines {
 }
 
 sub position-after(@p, @v, $iterations) {
-  return ( @p >>+>> (@v >>*>> $iterations) ) >>%>> @($width,$height);
+  return ( @p »+» (@v »*» $iterations) ) »%» @($width,$height);
 }
 
 sub part-one {
