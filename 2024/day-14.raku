@@ -31,8 +31,8 @@ sub display(@new, $i, $label = "") {
     my %counts;
     %counts{ .Str }++ for @new;
     move-to(0,0);
-    for 0 ..^ $width -> \y {
-      for 0 ..^ $height -> \x {
+    for 0 ..^ $height -> \y {
+      for 0 ..^ $width -> \x {
         print %counts{ [x,y].Str } ?? '█' !! ' ';
       }
       print "\n";
