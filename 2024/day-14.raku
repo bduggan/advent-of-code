@@ -1,7 +1,6 @@
 #!/usr/bin/env raku
 
 use Terminal::ANSI;
-use Terminal::ANSI::OO 't';
 
 unit sub MAIN($start = 1, $delay = Nil);
 
