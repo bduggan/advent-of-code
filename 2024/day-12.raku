@@ -1,6 +1,9 @@
 #!/usr/bin/env raku
 
 use Repl::Tools;
+use Log::Async;
+
+logger.send-to: $*ERR;
 
 my @grid = lines.map: *.comb.list;
 my @labeled = @grid.map: {  ( '.' xx .elems ).Array }
@@ -79,14 +82,14 @@ for @grid.kv -> \r, \row {
 my @all = unique @labeled.flatmap: { .list }
 my $sum;
 for @all -> $label {
-  say "doing shape $label";
+  info "doing shape $label " ~ (++$) ~ " of " ~ @all.elems;
   my $cells = %interior{ $label };
   my $area = $cells.keys.elems; 
   my $perim = %perimeters{ $label }.keys.elems; 
   # calculate the number of straight lines that are used to make the shape that is the perimeter
-  say "area: $area, segments: $perim";
+  # say "area: $area, segments: $perim";
   my $n = calculate-number-of-sides($cells, %perimeters{ $label }.keys);
-  say "NUMBER OF SIDES : $n";
+  # say "NUMBER OF SIDES : $n";
   $sum += $area * $n;
 }
 
