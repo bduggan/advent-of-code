@@ -2,7 +2,7 @@
 
 use Repl::Tools;
 
-my @grid = 'eg'.IO.lines.map: *.comb.list;
+my @grid = lines.map: *.comb.list;
 my @labeled = @grid.map: {  ( '.' xx .elems ).Array }
 
 exit note "no grid" unless @grid.elems > 0;
@@ -12,25 +12,6 @@ sub at(\r,\c) {
   '------';
 }
 
-sub partition-pairs(@pairs is copy) {
-  my @groups;
-  loop {
-    my $next = @pairs.shift or last;
-    my @overlaps = @pairs.grep: { .Set ∩ $next.Set > 0 }
-    my @group = ($next, |@overlaps );
-    @pairs = @pairs.grep: { .raku ∉ @overlaps.map: *.raku }
-    loop {
-      my @more-overlaps = @pairs.grep: -> $l { so @group.first( -> $g {$g.Set ∩ $l.Set}) };
-      last unless @more-overlaps;
-      @group.append: @more-overlaps;
-      @pairs = @pairs.grep: { .raku ∉ @more-overlaps.map: *.raku }
-      exit note 'nopt' if ++$ > 10;
-    }
-    @groups.push: @group;
-  }
-  return @groups;
-}
-
 my %interior;
 my %perimeters;
 
@@ -38,25 +19,40 @@ my %edge-groups;
 my %grouped;
 my @adjacent-pairs;
 
+sub adjacent($x,$y) {
+  my $a = $x.EVAL;
+  my $b = $y.EVAL;
+  return False unless $a[2] eq $b[2]; # direction
+  return False unless $a[0] == $b[0] || $a[1] == $b[1]; # must be same row or col
+  return False unless $a[0] == any($b[0] + 1, $b[0] - 1) || $a[1] == any($b[1] + 1, $b[1] - 1);
+  return True;
+}
+
 sub calculate-number-of-sides($cells, $perim) {
-  my @p = $perim.clone.list;
-  say "calculate perimeter, starting with " ~ @p.raku;
-  for @p -> $candidate {
-    my $try = $candidate.EVAL;
-    my $match = @p.first: -> $p {
-      my ( \r, \c, $dir) = $p.EVAL;
-      (   ( $try[0] == r && $try[1] == ( (c + 1) | (c - 1) ) && $try[2] eq $dir )
-       || ( $try[0] == ( ( r + 1 ) | (r - 1 ) ) && $try[1] == c && $try[2] eq $dir )
-     )
+  my $all-segments = $perim.SetHash;
+  my @lines;
+  loop {
+    my $segment = $all-segments.grab or last;
+    my @line-segments = $segment;
+    my @neighbors = $all-segments.keys.grep( { adjacent( $_, $segment ) } );
+    next if @neighbors == 0;
+    die "bug" unless @neighbors == 1 | 2;
+    while @neighbors {
+      @line-segments.append: @neighbors;
+      $all-segments = $all-segments (-) @neighbors;
+      my @next;
+      for @neighbors -> $n {
+        @next.append: $all-segments.keys.grep( { adjacent( $_, $n ) } );
+      }
+      @neighbors = @next;
+      die 'stuck' if ++$ > 50;
     }
-    next unless $match;
-    #say "found match $match matches $try";
-    %grouped{ $match } = 1;
-    @adjacent-pairs.push: [ $try, $match.EVAL ].sort.list;
+    NEXT {
+      @lines.push: %( :@line-segments );
+    }
   }
-  my @partitioned = partition-pairs(@adjacent-pairs.map(*.raku));
-  #repl;
-  return @partitioned.elems;
+  # say "lines: " ~ @lines.join("\n");
+  return +@lines;
 }
 
 
@@ -89,8 +85,9 @@ for @all -> $label {
   my $perim = %perimeters{ $label }.keys.elems; 
   # calculate the number of straight lines that are used to make the shape that is the perimeter
   say "area: $area, segments: $perim";
-  say "NUMBER OF SIDES : " ~ calculate-number-of-sides($cells, %perimeters{ $label }.keys);
-  $sum += $area * $perim;
+  my $n = calculate-number-of-sides($cells, %perimeters{ $label }.keys);
+  say "NUMBER OF SIDES : $n";
+  $sum += $area * $n;
 }
 
 say $sum;
