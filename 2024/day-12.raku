@@ -23,8 +23,8 @@ my %grouped;
 my @adjacent-pairs;
 
 sub adjacent($x,$y) {
-  my $a = $x.EVAL;
-  my $b = $y.EVAL;
+  my $a = $x.comb(/ [\d+ | \w+] /);
+  my $b = $y.comb(/ [\d+ | \w+] /);
   return False unless $a[2] eq $b[2]; # direction
   return False unless $a[0] == $b[0] || $a[1] == $b[1]; # must be same row or col
   return False unless $a[0] == any($b[0] + 1, $b[0] - 1) || $a[1] == any($b[1] + 1, $b[1] - 1);
