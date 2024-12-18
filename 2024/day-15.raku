@@ -67,8 +67,8 @@ sub try-move-block($from, $dir) {
   }
   given $dest {
     when '.' | '@' {
-			say "looks good moving";
-		  #repl;
+      say 'normal move';
+      repl;
       at(@to) = ']';
 		  at(@to »-» @$dir) = '[';
       at(@$from) = '.';
@@ -86,7 +86,21 @@ sub try-move-block($from, $dir) {
       }
     }
     when '[' && $dir[0] == 0 && $dir[1] == 1 {
+      say "trying to move right";
 			# trying to move right
+			my $pushed = try-move-block(@to, $dir);
+ 			if $pushed {
+				at(@to) = ']';
+				at(@to »-» @$dir ) = '[';
+			  at(@$from) = '.';
+			  return True;
+      } else {
+			  return False
+      }
+   }
+   when '[' && $dir[0] == 1 && $dir[1] == 0 {
+			# trying to move down
+      say "trying to move down";
 			my $pushed = try-move-block(@to, $dir);
  			if $pushed {
 				at(@to) = ']';
