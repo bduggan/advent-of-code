@@ -3,9 +3,11 @@
 use Terminal::ANSI;
 use Repl::Tools;
 
-my ($maze,$moves) = 'real'.IO.slurp.split(/\n\n/);
+clear-screen;
 
-my @grid = $maze.lines.map: *.comb.Array;
+my ($maze,$moves) = 'simple'.IO.slurp.split(/\n\n/);
+
+my @grid = $maze.lines.map: *.subst('O','[]',:g).comb.Array;
 
 my \rows = @grid.elems;
 my \cols = @grid[0].elems;
@@ -16,13 +18,14 @@ my @moves = $moves.lines.join.comb;
 
 my $move-number = 0;
 for @moves -> \m {
-  move-to(0,0);
+  # move-to(0,0);
   say "moving { m }";
   say "------------";
   for 0..^rows -> $r {
     say @grid[$r].join;
   }
   say "move number " ~ (++$) ~ " of " ~ @moves.elems;
+  prompt '>';
 
   my @prev = @pos;
   given m {
@@ -41,7 +44,7 @@ for @moves -> \m {
 }
 
 sub at(Int @x where @x == 2) {
-  return-rw @grid[@x[0]][@x[1]] // die "nothing at { @x }";
+  return-rw @grid[@x[0]][@x[1]] // '#'; #die "nothing at { @x }";
 }
 
 sub try-move(:@pos where @pos[0] ~~ Int, :$dir!) {
@@ -53,19 +56,26 @@ sub try-move(:@pos where @pos[0] ~~ Int, :$dir!) {
 }
 
 sub try-move-block($from, $dir) {
-  my @to := @$from »+» $dir;
-  #say "trying to move block from {$from} to " ~ @to;
-  if at(@to) eq '#' {
+  my Int @to =
+		$dir[0] == 0 ?? @$from »+» ( $dir »*» 2)
+ 							   !! @$from »+» $dir;
+  say "trying to move block from {$from} to " ~ @to;
+  my $dest = at(@to);
+  if $dest eq '#' {
     # say "cannot move to {@to} in direction { $dir }";
   	return False 
   }
-  given at(@to) {
+  given $dest {
     when '.' | '@' {
-      at(@to) = 'O';
+			say "looks good moving";
+		  #repl;
+      at(@to) = ']';
+		  at(@to »-» @$dir) = '[';
       at(@$from) = '.';
       return True;
     }
     when 'O' {
+      die 'XCX';
 			my $pushed = try-move-block(@to, $dir);
 			if $pushed {
 				at(@to) = 'O';
@@ -75,8 +85,20 @@ sub try-move-block($from, $dir) {
 			  return False
       }
     }
+    when '[' && $dir[0] == 0 && $dir[1] == 1 {
+			# trying to move right
+			my $pushed = try-move-block(@to, $dir);
+ 			if $pushed {
+				at(@to) = ']';
+				at(@to »-» @$dir ) = '[';
+			  at(@$from) = '.';
+			  return True;
+      } else {
+			  return False
+      }
+   }
     default {
-      die "unexpected value "  ~ .raku;
+      die "unexpected destination value "  ~ .raku;
     }
   }
 }
