@@ -6,14 +6,18 @@ my $passings = 0;
 
 class Mover {
   has $.at is rw;
-  method move-right(:$by!) {
+  method move-right(:$by is copy) {
+    $passings += $by div 100;
+    $by %= 100;
     for 0..^$by {
       $!at++;
       $!at %= 100;
       $passings++ if $!at == 0;
     }
   }
-  method move-left(:$by!) {
+  method move-left(:$by is copy) {
+    $passings += $by div 100;
+    $by %= 100;
     for 0..^$by {
       $!at--;
       $!at = 99 if $!at == -1;
