@@ -1,11 +1,14 @@
 #!/usr/bin/env raku
 
 sub is-repeater($num) {
-  return False unless $num.comb.elems %% 2;
-  my $els = $num.comb.elems div 2;
-  my $first = $num.substr(0, $els );
-  my $second = $num.substr( $els );
-  return $first eq $second;
+  my $all = $num.comb.elems;
+  for 1..5 -> $length {
+    next unless $all %% $length;
+    my @seqs = $num.comb($length);
+    next unless @seqs > 1;
+    return True if @seqs.unique == 1;
+  }
+  return False;
 }
 
 my $count;
@@ -16,6 +19,7 @@ for @ranges {
   say "$begin to $end";
   for $begin .. $end {
     next unless is-repeater($_);
+    say "repeater: $_";
     $count++;
     $sum += $_;
   }
