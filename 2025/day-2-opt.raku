@@ -7,13 +7,12 @@ for @ranges {
 
   my ($begin,$end) = .split('-').map: +*;
 
-  for $begin .. $end {
+  $sum += sum ($begin .. $end).grep: {
 
-    next unless .comb(
+    .comb(
        ( 1..(.chars div 2) ).any
     ).unique == 1;
 
-    $sum += $_;
   }
 }
 
