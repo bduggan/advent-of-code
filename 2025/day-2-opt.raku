@@ -1,11 +1,14 @@
 #!/usr/bin/env raku
 
+unit sub MAIN($file = 'input');
+
 say
  sum
-  'input'.IO.slurp.split(',')
+  $file.IO.slurp
+  .split(',')
   .map(*.split('-'))
-  .map: {
-    sum (+$^args[0] .. +$^args[1])
+  .map: -> (\b,\e) {
+    sum (+b .. +e)
     .grep: {
        .comb(
           ( 1..(.chars div 2) ).any
