@@ -3,11 +3,9 @@
 my $sum = 0;
 my @ranges = 'input'.IO.slurp.split(',');
 
-for @ranges {
+for @ranges.map(*.split('-')) -> ($begin,$end) {
 
-  my ($begin,$end) = .split('-').map: +*;
-
-  $sum += sum ($begin .. $end).grep: {
+  $sum += sum (+$begin .. +$end).grep: {
 
     .comb(
        ( 1..(.chars div 2) ).any

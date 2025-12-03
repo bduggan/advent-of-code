@@ -13,17 +13,14 @@ sub is-repeater($num) {
 
 my $count;
 my $sum = 0;
-my @ranges = 'input.real'.IO.slurp.split(',');
+my @ranges = 'input'.IO.slurp.split(',');
 for @ranges {
   my ($begin,$end) = .split('-').map: +*;
-  say "$begin to $end";
   for $begin .. $end {
     next unless is-repeater($_);
-    say "repeater: $_";
     $count++;
     $sum += $_;
   }
 }
 
-say "count is $count";
 say "sum is $sum";
