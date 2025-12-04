@@ -1,5 +1,7 @@
 #!/usr/bin/env raku
+
 unit sub MAIN($file = 'input');
+
 my $tot;
 for $file.IO.lines {
   say "file line is $_";
