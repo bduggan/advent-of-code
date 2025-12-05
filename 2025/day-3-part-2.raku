@@ -6,13 +6,10 @@ my @out;
 my @nums = $str.comb;
 
 for 0..^$digits -> $d {
-  my $digits-remaining = $digits - $d;
-  my @vals = @nums[0 ..^ ( * - ($digits-remaining - 1) )];
-  my $max-val = @vals.max;
+  my $max-val = max @nums[0 .. ( * - $digits + $d )];
   my $pos = @nums.first: :k, { $_ == $max-val };
-  my $val = @nums[$pos];
-  @nums = @nums[$pos^..*];
-  @out.push: $val;
+  @nums = @nums[$pos ^.. *];
+  @out.push: $max-val;
 }
 +@out.join;
 }
