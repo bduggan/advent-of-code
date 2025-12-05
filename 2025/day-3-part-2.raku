@@ -7,7 +7,7 @@ my @nums = $str.comb;
 
 for 0..^$digits -> $d {
   my $max-val = max @nums[0 .. ( * - $digits + $d )];
-  my $pos = @nums.first: :k, { $_ == $max-val };
+  my $pos = @nums.first: :k, * == $max-val;
   @nums = @nums[$pos ^.. *];
   @out.push: $max-val;
 }
