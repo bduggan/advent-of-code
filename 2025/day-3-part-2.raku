@@ -16,7 +16,7 @@ for 0..^$digits {
   my $pos = @nums.first: :k, { $_ == $max-val };
   my $val = @nums[$pos];
   @nums = @nums[$pos^..*];
-  @out.push: $val;
+  @out.push: $max-val;
 }
 +@out.join;
 }
