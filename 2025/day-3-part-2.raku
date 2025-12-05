@@ -5,8 +5,8 @@ my @out;
 
 my @nums = $str.comb;
 
-for 0..^$digits {
-  my $digits-remaining = $digits - $_;
+for 0..^$digits -> $d {
+  my $digits-remaining = $digits - $d;
   my @vals = @nums[0 ..^ ( * - ($digits-remaining - 1) )];
   my $max-val = @vals.max;
   my $pos = @nums.first: :k, { $_ == $max-val };
