@@ -23,7 +23,7 @@ sub add-range(@existing,$new) {
 
 my @ranges;
 
-for 'input'.IO.lines {
+for 'input.real'.IO.lines {
   my ($s,$e) = .split('-');
   my $r = $s .. $e;
   @ranges = add-range(@ranges,$r);
@@ -31,7 +31,7 @@ for 'input'.IO.lines {
 loop {
   my @next;
   say "simplifying, have " ~ @ranges.elems;
-  for @ranges.sort({.min}) -> $r {
+  for @ranges -> $r {
     @next = add-range(@next,$r)
   }
   last if @next.elems == @ranges.elems;
