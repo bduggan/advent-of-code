@@ -3,7 +3,6 @@
 sub add-range(@existing,$new) {
   my @next;
   my $found-overlap = False;
-  my $merging-min;
   for @existing.sort({ .min } ) -> $e {
     if $new.max < $e.min || $new.min > $e.max {
       push @next, $e;
