@@ -1,6 +1,6 @@
 #!/usr/bin/env raku
 
-my @grid = 'in'.IO.lines.map: *.comb.Array;
+my @grid = 'input-4'.IO.lines.map: *.comb.Array;
 
 sub adjacent-vals($row,$col) {
   my @offsets = ( (-1, 0, 1) X, (-1, 0, 1) ) .grep: { not (.[0] == 0 && .[1] == 0) }
