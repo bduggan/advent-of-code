@@ -9,13 +9,6 @@ sub adjacent-vals($row,$col) {
   @positions.map: -> (\r,\c) { @grid[r][c] // die "out of bounds, row {r}, col {c}" }
 }
 
-sub remove-adjacents($row,$col) {
-  my @offsets = ( (-1, 0, 1) X, (-1, 0, 1) ) .grep: { not (.[0] == 0 && .[1] == 0) }
-  my @positions = @offsets.map: { $_ >>+>> ($row,$col) };
-  @positions .= grep: { 0 <= .[0] < @grid.elems && 0 <= .[1] < @grid[1].elems }
-  @positions.map: -> (\r,\c) { @grid[r][c] = 'x' }
-}
-
 my $all = 0;
 loop {
 
