@@ -1,33 +1,31 @@
 #!/usr/bin/env raku
 
-my @beams;
-my $paths;
+my %beams;
 my $split-count;
 
-for 'input'.IO.lines -> $l {
+# 4647 too low
+#
+
+for 'input-real'.IO.lines.kv -> $rownum, $l {
   my @row = $l.comb;
-  @beams = @row.first(:k, { $_ eq 'S'}) if $l.contains('S');
-  say "beams are at : " ~ @beams;
+  if $l.contains('S') {
+    %beams = @row.first(:k, { $_ eq 'S'}) => 1;
+  }
   my @splitters = @row.grep(:k, { $_ eq '^' } );
-  next unless @splitters > 0;
+  # next unless @splitters > 0;
+  say "beams are at : " ~ %beams.keys.sort.join(',');
   my %new-beams;
   my %s = set @splitters;
-  my %once;
-  for @beams -> $b {
+  for %beams.keys -> $b {
     if %s{ $b } {
       $split-count++;
-      %new-beams{ $b - 1 }++ unless %once{ $b - 1}++;
-      %new-beams{ $b + 1 }++ unless %once{ $b + 1}++;
+      %new-beams{ $b - 1 } += %beams{ $b };
+      %new-beams{ $b + 1 } += %beams{ $b };
     } else {
-      %new-beams{ $b }++ unless %once{ $b }++;
+      %new-beams{ $b } += %beams{ $b };
     }
   }
-  @beams = %new-beams.keys.sort( +* );
-  $paths +=%new-beams.values.sum;
-  say "paths?" ~ %new-beams.values.sum;
+  %beams = %new-beams;
+  say "paths?" ~ %beams.values.sum;
 }
-
-say @beams;
-say 'splits: ' ~ $split-count;
-say "paths $paths";
 
