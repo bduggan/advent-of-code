@@ -11,7 +11,6 @@ sub adjacent-vals($row,$col) {
 
 my $all = 0;
 loop {
-
   my $ok;
   my @remove-me;
   for 0..^@grid.elems -> \r {
