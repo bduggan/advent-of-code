@@ -26,6 +26,6 @@ for 'input-real'.IO.lines.kv -> $rownum, $l {
     }
   }
   %beams = %new-beams;
-  say "paths?" ~ %beams.values.sum;
+  say "paths: " ~ %beams.values.sum;
 }
 
