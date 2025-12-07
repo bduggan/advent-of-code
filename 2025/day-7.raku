@@ -10,13 +10,12 @@ for 'input-real'.IO.lines -> $l {
   my @splitters = @row.grep(:k, { $_ eq '^' } );
   next unless @splitters > 0;
   my %new-beams;
-  my %already-counted;
   my %s = set @splitters;
   for @beams -> $b {
     if %s{ $b } {
       %new-beams{ $b - 1 } = True;
       %new-beams{ $b + 1 } = True;
-      $split-count++ unless %already-counted{ $b }++;
+      $split-count++;
     } else {
       %new-beams{ $b } = True;
     }
