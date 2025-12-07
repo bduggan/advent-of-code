@@ -3,7 +3,7 @@
 my @beams;
 my $split-count;
 
-for 'input'.IO.lines -> $l {
+for 'input-real'.IO.lines -> $l {
   my @row = $l.comb;
   @beams = @row.first(:k, { $_ eq 'S'}) if $l.contains('S');
   say "beams are at : " ~ @beams;
@@ -11,16 +11,14 @@ for 'input'.IO.lines -> $l {
   next unless @splitters > 0;
   my %new-beams;
   my %already-counted;
-  for @splitters {
-    my %s = set @splitters;
-    for @beams -> $b {
-      if %s{ $b } {
-        %new-beams{ $b - 1 } = True;
-        %new-beams{ $b + 1 } = True;
-        $split-count++ unless %already-counted{ $b }++;
-      } else {
-        %new-beams{ $b } = True;
-      }
+  my %s = set @splitters;
+  for @beams -> $b {
+    if %s{ $b } {
+      %new-beams{ $b - 1 } = True;
+      %new-beams{ $b + 1 } = True;
+      $split-count++ unless %already-counted{ $b }++;
+    } else {
+      %new-beams{ $b } = True;
     }
   }
   @beams = %new-beams.keys.sort( +* );
