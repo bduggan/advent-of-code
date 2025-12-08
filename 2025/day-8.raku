@@ -16,12 +16,29 @@ my %edges;
 my @v = $file.IO.lines.map: { Vertex.new(|.split(',')) };
 
 sub key($v1,$v2) {
-  $v1 ~ ' to ' ~ $v2
+  [ $v1, $v2 ].sort.join(' to ');
 }
+
 for @v.combinations(2) -> ($v1, $v2) {
-  %edges{ key($v1,$v2) } = %edges{ key($v2,$v1) } // $v1.distance-to($v2);
+  %edges{ key($v1,$v2) } //= $v1.distance-to($v2);
 }
 
 say "vertices : " ~ @v.elems;
 say "edges: " ~ %edges.values.elems;
-say %edges;
+
+my %connected;
+
+my $start = @v.head;
+my $closest = %edges.keys.min( by => { %edges{$_} });
+
+say "connection 0 is $closest";
+
+%connected{$closest} = True;
+%edges{ $closest }:delete;
+while %edges.keys > 0 {
+  my $next = %edges.keys.min( by => { %edges{$_} });
+  say "connection " ~ ++$ ~ " is $next";
+  %connected{ $next } = True;
+  %edges{ $next }:delete;
+  last if ++$ > 9;
+}
